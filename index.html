@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resumen Teórico-Algebraico — Estadística Actuarial</title>
+<script>
+MathJax = {
+  tex: {
+    inlineMath: [['$', '$'], ['\\(', '\\)']],
+    displayMath: [['$$', '$$'], ['\\[', '\\]']],
+    tags: 'ams',
+    macros: {
+      RR: '{\\mathbb{R}}',
+      NN: '{\\mathbb{N}}'
+    }
+  },
+  options: { skipHtmlTags: ['script','noscript','style','textarea','pre'] }
+};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #161b27;
+    --surface2: #1e2535;
+    --border: #2a3348;
+    --accent: #4f8ef7;
+    --accent2: #7dd3fc;
+    --accent-green: #4ade80;
+    --accent-amber: #fbbf24;
+    --accent-pink: #f472b6;
+    --text: #e2e8f0;
+    --text-muted: #8896b0;
+    --text-dim: #5a6a85;
+    --heading: #f0f4ff;
+    --box-blue: rgba(79,142,247,0.08);
+    --box-border-blue: rgba(79,142,247,0.35);
+    --box-green: rgba(74,222,128,0.07);
+    --box-border-green: rgba(74,222,128,0.35);
+    --box-amber: rgba(251,191,36,0.07);
+    --box-border-amber: rgba(251,191,36,0.3);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 18px;
+    line-height: 1.75;
+    min-height: 100vh;
+  }
+
+  /* Faint grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 40px 40px;
+    opacity: 0.18;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 2rem 6rem;
+  }
+
+  /* ── COVER ── */
+  .cover {
+    text-align: center;
+    padding: 5rem 0 4rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 3rem;
+  }
+  .cover-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 1.2rem;
+    display: block;
+  }
+  .cover h1 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 2.6rem;
+    font-weight: 700;
+    color: var(--heading);
+    line-height: 1.2;
+    margin-bottom: 0.6rem;
+    letter-spacing: -0.02em;
+  }
+  .cover h1 span { color: var(--accent); }
+  .cover-sub {
+    color: var(--text-muted);
+    font-size: 1rem;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 300;
+  }
+  .cover-meta {
+    margin-top: 2rem;
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .cover-meta span {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 0.3rem 0.8rem;
+    border-radius: 4px;
+  }
+
+  /* ── TOC ── */
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 6px;
+    padding: 1.6rem 2rem;
+    margin-bottom: 3.5rem;
+  }
+  .toc-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1rem;
+  }
+  .toc ol {
+    padding-left: 1.2rem;
+    counter-reset: toc;
+    list-style: none;
+  }
+  .toc li {
+    counter-increment: toc;
+    padding: 0.18rem 0;
+    font-size: 0.92rem;
+    color: var(--text-muted);
+  }
+  .toc li::before {
+    content: counter(toc, decimal-leading-zero) ". ";
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent);
+    font-size: 0.72rem;
+    margin-right: 0.4rem;
+  }
+  .toc a { color: inherit; text-decoration: none; transition: color 0.15s; }
+  .toc a:hover { color: var(--accent2); }
+
+  /* ── SECTIONS ── */
+  section {
+    margin-bottom: 4rem;
+    scroll-margin-top: 2rem;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 1.8rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--accent);
+    background: var(--box-blue);
+    border: 1px solid var(--box-border-blue);
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+  .section-header h2 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.55rem;
+    font-weight: 600;
+    color: var(--heading);
+    letter-spacing: -0.01em;
+  }
+
+  h3 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--accent2);
+    margin: 1.8rem 0 0.8rem;
+    letter-spacing: 0.01em;
+  }
+
+  p { margin-bottom: 1rem; }
+
+  /* ── MATH DISPLAY BOXES ── */
+  .eq-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1.2rem 1.6rem;
+    margin: 1.2rem 0;
+    overflow-x: auto;
+  }
+  .eq-box.highlight {
+    border-color: var(--box-border-blue);
+    background: var(--box-blue);
+    border-left: 3px solid var(--accent);
+  }
+  .eq-box.result {
+    border-color: var(--box-border-green);
+    background: var(--box-green);
+    border-left: 3px solid var(--accent-green);
+  }
+  .eq-box.warning {
+    border-color: var(--box-border-amber);
+    background: var(--box-amber);
+    border-left: 3px solid var(--accent-amber);
+  }
+  .eq-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 0.5rem;
+  }
+
+  /* ── CALLOUTS ── */
+  .callout {
+    display: flex;
+    gap: 1rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1rem 1.2rem;
+    margin: 1rem 0;
+    font-size: 0.95rem;
+  }
+  .callout-icon {
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+  }
+  .callout.tip { border-left: 3px solid var(--accent-green); }
+  .callout.note { border-left: 3px solid var(--accent); }
+  .callout.important { border-left: 3px solid var(--accent-pink); }
+
+  /* ── TABLES ── */
+  .table-wrap { overflow-x: auto; margin: 1.2rem 0; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    font-family: 'Outfit', sans-serif;
+  }
+  th {
+    background: var(--surface2);
+    color: var(--accent2);
+    font-weight: 600;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 0.6rem 1rem;
+    border-bottom: 2px solid var(--border);
+    text-align: left;
+  }
+  td {
+    padding: 0.55rem 1rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-muted);
+    vertical-align: top;
+  }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  /* ── INLINE CODE ── */
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82em;
+    background: var(--surface2);
+    color: var(--accent-amber);
+    padding: 0.1em 0.4em;
+    border-radius: 3px;
+  }
+
+  /* ── STEP LIST ── */
+  .steps { list-style: none; padding: 0; margin: 1rem 0; }
+  .steps li {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 0.9rem;
+    align-items: baseline;
+  }
+  .step-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--bg);
+    background: var(--accent);
+    border-radius: 50%;
+    width: 1.4rem;
+    height: 1.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 0.2rem;
+  }
+
+  /* ── DIVIDER ── */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 3rem 0;
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+  }
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── BACK TO TOP ── */
+  .back-top {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    padding: 0.5rem 0.9rem;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.15s;
+    z-index: 100;
+  }
+  .back-top:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* MathJax overrides for dark bg */
+  mjx-container { color: var(--text) !important; }
+  .MJX-TEX { font-size: 1.05em !important; }
+
+  ul { padding-left: 1.5rem; margin-bottom: 1rem; }
+  ul li { margin-bottom: 0.3rem; color: var(--text-muted); }
+
+  strong { color: var(--heading); }
+  em { color: var(--accent2); font-style: italic; }
+
+  @media (max-width: 640px) {
+    .cover h1 { font-size: 1.8rem; }
+    .wrapper { padding: 0 1rem 4rem; }
+    .section-header h2 { font-size: 1.2rem; }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+<!-- COVER -->
+<div class="cover">
+  <span class="cover-tag">Universidad de Buenos Aires &mdash; Facultad de Ciencias Económicas</span>
+  <h1>Estadística <span>Actuarial</span></h1>
+  <div class="cover-sub">Resumen Teórico‑Algebraico &mdash; Segundo Parcial</div>
+  <div class="cover-meta">
+    <span>Prof. Rodrigo Del Rosso</span>
+    <span>Procesos de Poisson &amp; Birth‑Death</span>
+    <span>FGP · FGM · Lagrange</span>
+  </div>
+</div>
+
+<!-- TOC -->
+<div class="toc">
+  <div class="toc-title">Índice de Contenidos</div>
+  <ol>
+    <li><a href="#s1">Proceso de Poisson — Introducción y Definición Estricta</a></li>
+    <li><a href="#s2">Condición de Kolmogorov-Chapman</a></li>
+    <li><a href="#s3">Probabilidades de Transición Infinitesimal</a></li>
+    <li><a href="#s4">Sistema de Ecuaciones Diferenciales de Kolmogorov</a></li>
+    <li><a href="#s5">Resolución Artesanal</a></li>
+    <li><a href="#s6">Resolución por FGP</a></li>
+    <li><a href="#s7">Resolución por FGM — Momentos</a></li>
+    <li><a href="#s8">Dominio del Tiempo — Exp. y Gamma</a></li>
+    <li><a href="#s9">Proceso Lineal de Nacimiento Puro</a></li>
+    <li><a href="#s10">Proceso Lineal de Fallecimiento Puro</a></li>
+    <li><a href="#s11">Proceso Nacimiento-Fallecimiento Lineal</a></li>
+    <li><a href="#s12">Proceso Determinístico</a></li>
+    <li><a href="#s13">Teoría de Colas (Queuing Theory)</a></li>
+    <li><a href="#s14">Proceso BDI — Birth-Death-Immigration</a></li>
+    <li><a href="#s15">Proceso BDIM — Birth-Death-Immigration-Migration</a></li>
+    <li><a href="#s16">Proceso Bidimensional de Nacimiento-Fallecimiento</a></li>
+    <li><a href="#s17">Teorema de Reuter-Ledermann</a></li>
+    <li><a href="#s18">Tablas Resumen</a></li>
+    <li><a href="#s19">Aplicaciones Actuariales del Proceso de Poisson</a></li>
+    <li><a href="#s20">Proceso Logístico de Nacimiento-Fallecimiento</a></li>
+    <li><a href="#s21">Simulación de Procesos Estocásticos</a></li>
+  </ol>
+</div>
+
+<!-- ══════════════════════════════════════ -->
+<section id="s1">
+<div class="section-header">
+  <span class="section-num">01</span>
+  <h2>Proceso de Poisson</h2>
+</div>
+
+<h3>1.1 Definición conceptual</h3>
+<p>El <strong>Proceso de Poisson</strong> $\{Y_t\}$ es un proceso estocástico:</p>
+<ul>
+  <li><strong>Continuo en el dominio del tiempo</strong>: ocurre para cualquier $t \ge 0$</li>
+  <li><strong>Discreto en el dominio de las variables</strong>: $\Omega(y_t) = \{0, 1, 2, \ldots\}$</li>
+  <li><strong>Proceso de salto (<em>jump process</em>)</strong>: evoluciona solo hacia la derecha</li>
+</ul>
+
+<h3>1.2 Propiedades fundamentales</h3>
+<p><strong>AR(1) — Autorregresividad de orden 1 (Propiedad Markoviana):</strong><br>
+Lo que ocurre en el intervalo $(t_0,\,t)$ depende <em>exclusivamente</em> del estado en $t_0$.</p>
+
+<div class="callout note">
+  <span class="callout-icon">📌</span>
+  <div>La distribución futura del proceso, dado el estado presente, es <strong>independiente</strong> del pasado completo. Solo importa el estado anterior (AR(1)).</div>
+</div>
+
+<p><strong>Linealidad:</strong> En un intervalo $[t,\; t+\Delta t)$ solo puede ocurrir <em>a lo sumo un</em> evento $E$. Dos ocurrencias simultáneas tienen probabilidad nula cuando $\Delta t \to 0$.</p>
+
+<h3>1.3 Probabilidades de transición</h3>
+<div class="eq-box highlight">
+  <div class="eq-label">Definición</div>
+  $$P_{x,y}(t_1,\,t_2) \;=\; P\!\left(y_{t_2} = y \;\big|\; y_{t_1} = x\right)$$
+</div>
+<p>Para definir el proceso en forma <strong>estricta</strong> se necesita la familia completa de probabilidades de transición $\forall\, x,\,y,\,t$.</p>
+
+<h3>1.4 Definición estricta</h3>
+<p>La función de probabilidades conjunta para cualquier sucesión finita $\{Y(t_1),\ldots,Y(t_n)\}$ se factoriza como:</p>
+<div class="eq-box">
+$$P\big\{Y(t_1)\le y_1,\,\ldots,\,Y(t_n)\le y_n\big\} = \prod_{j=1}^{n} P\!\left(Y(t_j)\le y_j \;\big|\; Y(t_{j-1})=y_{j-1}\right)$$
+</div>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<section id="s2">
+<div class="section-header">
+  <span class="section-num">02</span>
+  <h2>Condición de Kolmogorov-Chapman</h2>
+</div>
+
+<p>Para cualquier instante intermedio $t_1 < t < t_2$, como el proceso es AR(1) y las trayectorias son <em>mutuamente excluyentes</em> (Regla de la Suma), se aplica el Teorema de la Probabilidad Total:</p>
+
+<div class="eq-box highlight">
+  <div class="eq-label">Condición de Kolmogorov-Chapman</div>
+  $$\boxed{P_{x,y}(t_1,\,t_2) \;=\; \sum_{h=x}^{y} P_{x,h}(t_1,\,t)\cdot P_{h,y}(t,\,t_2)}$$
+</div>
+
+<div class="callout tip">
+  <span class="callout-icon">💡</span>
+  <div>Esto funciona porque el proceso es AR(1): los intervalos disjuntos $(t_1,t)$ y $(t,t_2)$ son <strong>independientes</strong>, por lo tanto la probabilidad de cada trayectoria es el <em>producto</em> de sus tramos.</div>
+</div>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<section id="s3">
+<div class="section-header">
+  <span class="section-num">03</span>
+  <h2>Probabilidades de Transición Infinitesimal</h2>
+</div>
+
+<h3>3.1 Tasa instantánea ρ</h3>
+<div class="eq-box">
+$$\lim_{\Delta t \to 0} \frac{1 - P_{x,x}(t,\,t+\Delta t)}{\Delta t} \;=\; \rho$$
+</div>
+
+<h3>3.2 Las tres probabilidades infinitesimales</h3>
+<div class="eq-box result">
+  <div class="eq-label">Sistema completo de transiciones</div>
+  $$P_{x,\,x+1}(t,\,t+\Delta t) \;=\; \rho\,\Delta t$$
+  $$\sum_{k\ge 2} P_{x,\,x+k}(t,\,t+\Delta t) \;=\; o(\Delta t)$$
+  $$P_{x,\,x}(t,\,t+\Delta t) \;=\; 1 - \rho\,\Delta t - o(\Delta t)$$
+</div>
+
+<p>Donde $o(\Delta t)$ es una función tal que $\lim_{\Delta t\to 0} o(\Delta t)/\Delta t = 0$. La suma de funciones $o(\Delta t)$ es también $o(\Delta t)$.</p>
+
+<h3>3.3 Condición inicial</h3>
+<p>El momento $t=0$ es el único momento <strong>determinístico</strong> del proceso:</p>
+<div class="eq-box">
+$$P_y(0) = \begin{cases} 1 & y = 0 \\ 0 & y > 0 \end{cases}$$
+</div>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<section id="s4">
+<div class="section-header">
+  <span class="section-num">04</span>
+  <h2>Sistema de Ecuaciones de Kolmogorov</h2>
+</div>
+
+<h3>4.1 Derivación</h3>
+<p>Aplicando la condición K-C en $[t,\,t+\Delta t]$ y sustituyendo las probabilidades infinitesimales:</p>
+$$P_y(t+\Delta t) = P_y(t)\,[1-\rho\Delta t - o(\Delta t)] + P_{y-1}(t)\,\rho\Delta t + o(\Delta t)\sum_{k\ge 2}P_{y-k}(t)$$
+
+<p>Dividiendo por $\Delta t$ y tomando $\lim_{\Delta t\to 0}$:</p>
+
+<div class="eq-box result">
+  <div class="eq-label">Sistema de Kolmogorov — Proceso de Poisson</div>
+  $$\boxed{P_y'(t) \;=\; -\rho\,P_y(t) + \rho\,P_{y-1}(t) \qquad y = 0,1,2,\ldots;\; t\ge 0}$$
+</div>
+
+<p>Es un sistema de <em>infinitas</em> ecuaciones diferenciales-en-diferencias (diferencial en $t$, en diferencias en $y$).</p>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<section id="s5">
+<div class="section-header">
+  <span class="section-num">05</span>
+  <h2>Resolución Artesanal</h2>
+</div>
+
+<h3>5.1 Caso $y = 0$</h3>
+<p>El sistema se reduce a la EDO homogénea:</p>
+<div class="eq-box">
+$$\frac{dP_0(t)}{P_0(t)} = -\rho\,dt \;\implies\; \ln P_0(t) = -\rho t + C \;\implies\; P_0(t) = C\,e^{-\rho t}$$
+</div>
+<p>Condición inicial $P_0(0)=1 \Rightarrow C=1$, por lo tanto:</p>
+<div class="eq-box result">
+$$P_0(t) = e^{-\rho t}$$
+</div>
+<div class="callout note">
+  <span class="callout-icon">📌</span>
+  <div>$P_0(t)$ es la probabilidad de que el evento $E$ <strong>no</strong> ocurra hasta el instante $t$. Es función inversa de $\rho$: a mayor tasa, menor probabilidad de permanencia en 0.</div>
+</div>
+
+<h3>5.2 Caso $y = 1$</h3>
+<p>Ecuación diferencial de primer orden <em>no homogénea</em>:</p>
+<div class="eq-box">
+$$P_1'(t) + \rho\,P_1(t) = \rho\,e^{-\rho t}$$
+</div>
+<p>Resolviendo: $P_1(t) = \rho t\, e^{-\rho t}$</p>
+
+<h3>5.3 Solución general — Génesis de la distribución de Poisson</h3>
+<p>Resolviendo inductivamente para todo $y$:</p>
+<div class="eq-box result">
+  <div class="eq-label">Distribución de Poisson</div>
+  $$\boxed{P_y(t) = \frac{(\rho t)^y}{y!}\,e^{-\rho t} \qquad y=0,1,2,\ldots;\; t\ge 0}$$
+  $$Y_t \sim \mathcal{P}(\rho t)$$
+</div>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<section id="s6">
+<div class="section-header">
+  <span class="section-num">06</span>
+  <h2>Resolución por FGP</h2>
+</div>
+
+<h3>6.1 Definición de la FGP</h3>
+<div class="eq-box">
+$$G \;\equiv\; G_y(w;\,t) \;=\; \sum_{y=0}^{+\infty} w^y\, P_y(t)$$
+</div>
+
+<p><strong>Propiedades clave:</strong> $G_y(1;t)=1$, $\;G_y(w;0)=1$, y las derivadas parciales:</p>
+$$\frac{\partial G}{\partial t} = \sum_{y=0}^{\infty} w^y P_y'(t), \qquad \frac{\partial G}{\partial w} = \sum_{y=0}^{\infty} y\,w^{y-1} P_y(t)$$
+
+<h3>6.2 Transformación del sistema en EDP</h3>
+<p>Multiplicando el sistema de Kolmogorov por $w^y$ y sumando sobre todo el dominio:</p>
+$$\frac{\partial G}{\partial t} = -\rho G + \rho w \sum_{y=0}^{\infty} w^{y-1} P_{y-1}(t)$$
+<p>Como $P_{-1}(t)=0$ (estado imposible), la sumatoria resulta ser $G$, y se obtiene:</p>
+
+<div class="eq-box highlight">
+  <div class="eq-label">EDP del Proceso de Poisson</div>
+  $$\frac{\partial G}{\partial t} \;=\; \rho(w-1)\cdot G$$
+</div>
+
+<h3>6.3 Resolución por variables separables</h3>
+<div class="eq-box">
+$$\frac{dG}{G} = \rho(w-1)\,dt \implies \ln G_y(w;t) = \rho(w-1)t + C$$
+$$G_y(w;t) = C\,e^{\rho(w-1)t}$$
+</div>
+<p>Condición inicial $G_y(w;0)=1 \Rightarrow C=1$. Solución particular:</p>
+$$G_y(w;t) = e^{-\rho t}\cdot e^{\rho t w}$$
+
+<h3>6.4 Identificación de la distribución</h3>
+<p>Desarrollando en serie de potencias de $w$:</p>
+<div class="eq-box result">
+$$G_y(w;t) = e^{-\rho t}\left[1 + \frac{\rho t}{1!}w + \frac{(\rho t)^2}{2!}w^2 + \cdots\right] = \sum_{y=0}^{\infty} w^y \underbrace{\frac{(\rho t)^y}{y!}e^{-\rho t}}_{P_y(t)}$$
+</div>
+<p>Confirmando que el proceso queda definido en forma estricta como $Y_t \sim \mathcal{P}(\rho t)$.</p>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<section id="s7">
+<div class="section-header">
+  <span class="section-num">07</span>
+  <h2>Resolución por FGM — Momentos</h2>
+</div>
+
+<h3>7.1 Definición de la FGM</h3>
+<div class="eq-box">
+$$M_y(w;\,t) \;=\; \sum_{y=0}^{\infty} e^{wy}\,P_y(t)$$
+</div>
+
+<p>La EDP de la FGM resulta:</p>
+<div class="eq-box highlight">
+$$\frac{\partial M}{\partial t} \;=\; \rho(e^w - 1)\cdot M$$
+</div>
+
+<h3>7.2 Esperanza — Momento de orden 1</h3>
+<p>Derivando respecto a $w$ y evaluando en $w=0$:</p>
+<div class="eq-box">
+$$\frac{d}{dt}\,m\big(y(t)\big) = \rho \implies m\big(y(t)\big) = \rho t + C$$
+</div>
+<p>Condición inicial: $m(y(0)) = \sum y\,P_y(0) = 0 \Rightarrow C=0$</p>
+<div class="eq-box result">
+$$\mathbb{E}[y(t)] = \rho\, t$$
+</div>
+
+<h3>7.3 Varianza — Momento de orden 2</h3>
+<p>Derivando dos veces respecto a $w$ y evaluando en $w=0$:</p>
+<div class="eq-box">
+$$\frac{d}{dt}\,m_2\big(y(t)\big) = \rho + 2\rho\,m\big(y(t)\big) = \rho + 2\rho^2 t$$
+$$m_2\big(y(t)\big) = \rho t + \rho^2 t^2$$
+</div>
+
+<p>Usando la relación $\sigma^2 = m_2 - m_1^2$:</p>
+<div class="eq-box result">
+  <div class="eq-label">Momentos del Proceso de Poisson</div>
+  $$\mathbb{E}[y(t)] = \rho t \qquad\qquad \operatorname{Var}[y(t)] = \rho t$$
+</div>
+
+<div class="callout important">
+  <span class="callout-icon">⚠️</span>
+  <div>El proceso <strong>no es estacionario</strong>: media y varianza dependen de $t$ y crecen indefinidamente. La definición débil se transforma en estricta porque existe una sucesión infinita de momentos.</div>
+</div>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<section id="s8">
+<div class="section-header">
+  <span class="section-num">08</span>
+  <h2>Dominio del Tiempo — Exp. y Gamma</h2>
+</div>
+
+<h3>8.1 Variable tiempo de espera</h3>
+<p>Sea $T_{0,1}$ el tiempo hasta la primera ocurrencia del evento $E$:</p>
+<div class="eq-box">
+$$P(T_{0,1} > t) = P_0(t) = e^{-\rho t}$$
+$$F_{T_{0,1}}(t) = 1 - e^{-\rho t} \qquad f_{T_{0,1}}(t) = \rho\,e^{-\rho t}$$
+</div>
+
+<div class="eq-box result">
+  <div class="eq-label">Condición necesaria y suficiente para proceso de Poisson</div>
+  $$T_{i,\,i+1} \sim \text{Exp}(\rho), \quad \text{con} \quad \mathbb{E}(T) = \frac{1}{\rho}, \quad \operatorname{Var}(T) = \frac{1}{\rho^2}$$
+</div>
+
+<h3>8.2 Distribución Gamma — Tiempos acumulados</h3>
+<p>Sea $T_j$ el tiempo hasta la $j$-ésima ocurrencia:</p>
+$$T_j = \sum_{i=0}^{j-1} T_{i,\,i+1}$$
+<p>Como las $T_{i,i+1}$ son independientes y Exponenciales, la FGM de su suma es:</p>
+<div class="eq-box">
+$$\varphi_{T_j}(w) = \left(\frac{\rho}{\rho-w}\right)^j = \left(1-\frac{w}{\rho}\right)^{-j}$$
+</div>
+<div class="eq-box result">
+$$T_j \sim \Gamma\!\left(j,\; \tfrac{1}{\rho}\right)$$
+</div>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<section id="s9">
+<div class="section-header">
+  <span class="section-num">09</span>
+  <h2>Proceso Lineal de Nacimiento Puro</h2>
+</div>
+
+<h3>9.1 Definición</h3>
+$$\{n(t)\};\quad t\ge 0;\quad \Omega(n(t))=\{n_0, n_0+1,\ldots\};\quad n(0)=n_0$$
+<p>Solo ingresos por nacimiento. Cada individuo tiene tasa de reproducción $\lambda$. Proceso AR(1) + linealidad.</p>
+
+<h3>9.2 Probabilidades de transición infinitesimal</h3>
+<div class="eq-box">
+$$P_{n,\,n+1}(t,\,t+\Delta t) = n\lambda\,\Delta t$$
+$$P_{n,\,n+k}(t,\,t+\Delta t) = o(\Delta t) \quad k\ge 2$$
+$$P_{n,\,n}(t,\,t+\Delta t) = 1 - n\lambda\,\Delta t - o(\Delta t)$$
+</div>
+
+<h3>9.3 Sistema de Kolmogorov</h3>
+<div class="eq-box highlight">
+$$P_{n_0,n}'(t) = -n\lambda\,P_{n_0,n}(t) + (n-1)\lambda\,P_{n_0,n-1}(t)$$
+</div>
+
+<h3>9.4 EDP de la FGP</h3>
+<p>Con $G_n(w;t) = \sum_{n=n_0}^{\infty} w^n P_{n_0,n}(t)$, multiplicando por $w^n$ y sumando:</p>
+<div class="eq-box highlight">
+$$\frac{\partial G}{\partial t} - \lambda w(w-1)\,\frac{\partial G}{\partial w} = 0$$
+</div>
+
+<h3>9.5 Solución por Ecuaciones Auxiliares de Lagrange</h3>
+<p>Sistema: $dt/1 = dw/[-\lambda w(w-1)] = dG/0$</p>
+
+<p><strong>Primera constante $C_1$</strong> (fracciones parciales sobre el cociente $dt/dw$):</p>
+<div class="eq-box">
+$$\lambda\,dt = \frac{dw}{w} - \frac{dw}{w-1} \implies \lambda t = \ln\frac{w}{w-1} + C$$
+$$C_1 = \frac{w}{w-1}\,e^{-\lambda t}$$
+</div>
+
+<p><strong>Segunda constante:</strong> $dG = 0 \Rightarrow C_2 = G_n(w;t)$</p>
+
+<p><strong>Solución general:</strong> $G_n(w;t) = f\!\left(\frac{w}{w-1}\,e^{-\lambda t}\right)$</p>
+
+<p><strong>Condición inicial</strong> ($t=0$): $G_n(w;0)=w^{n_0}$. Usando variable auxiliar $s = w/(w-1)$:</p>
+$$f(s) = \left(\frac{s}{s-1}\right)^{n_0}$$
+
+<p>Generalizando:</p>
+<div class="eq-box result">
+  <div class="eq-label">FGP del Linear Birth Process</div>
+  $$G_n(w;t) = \left[\frac{w\,e^{-\lambda t}}{1 - w(1-e^{-\lambda t})}\right]^{n_0} = w^{n_0}e^{-n_0\lambda t}\big[1-w(1-e^{-\lambda t})\big]^{-n_0}$$
+</div>
+
+<div class="eq-box result">
+  <div class="eq-label">Distribución resultante</div>
+  $$n(t) \sim \text{Binomial Negativa}\; b^{-1}(n_0;\, e^{-\lambda t})$$
+</div>
+
+<h3>9.6 Esperanza y varianza</h3>
+<div class="eq-box result">
+$$\mathbb{E}[n(t)] = n_0\,e^{\lambda t} \qquad\quad \operatorname{Var}[n(t)] = n_0\,e^{\lambda t}(e^{\lambda t}-1)$$
+</div>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<section id="s10">
+<div class="section-header">
+  <span class="section-num">10</span>
+  <h2>Proceso Lineal de Fallecimiento Puro</h2>
+</div>
+
+<h3>10.1 Definición</h3>
+$$\{n(t)\};\quad t\ge 0;\quad \Omega(n(t))=\{0,1,\ldots,n_0\};\quad n(0)=n_0$$
+<p>Solo egresos por fallecimiento. Cada individuo tiene tasa $\mu$. El proceso evoluciona hacia la <em>izquierda</em> y siempre tiene solución única.</p>
+
+<h3>10.2 Probabilidades infinitesimales</h3>
+<div class="eq-box">
+$$P_{n,\,n-1}(t,\,t+\Delta t) = n\mu\,\Delta t \qquad P_{n,\,n}(t,\,t+\Delta t) = 1-n\mu\,\Delta t - o(\Delta t)$$
+</div>
+
+<h3>10.3 Sistema de Kolmogorov</h3>
+<div class="eq-box highlight">
+$$P_{n_0,n}'(t) = -n\mu\,P_{n_0,n}(t) + (n+1)\mu\,P_{n_0,n+1}(t)$$
+</div>
+
+<h3>10.4 EDP de la FGP</h3>
+<p>Notar que el dominio superior está acotado en $n_0$, y $P_{n_0,n_0+1}(t)=0$:</p>
+<div class="eq-box highlight">
+$$\frac{\partial G}{\partial t} - \mu(1-w)\,\frac{\partial G}{\partial w} = 0$$
+</div>
+
+<h3>10.5 Solución por Lagrange</h3>
+<p>Sistema: $dt/1 = dw/[-\mu(1-w)] = dG/0$</p>
+<div class="eq-box">
+$$-\mu\,dt = \frac{dw}{1-w} \implies C_1 = (1-w)\,e^{-\mu t}$$
+</div>
+<p>Solución general: $G_n(w;t)=f\big((1-w)e^{-\mu t}\big)$</p>
+<p>De la condición inicial $f(1-w)=w^{n_0}$, con $s=1-w \Rightarrow f(s)=(1-s)^{n_0}$:</p>
+
+<div class="eq-box result">
+  <div class="eq-label">FGP del Linear Death Process</div>
+  $$G_n(w;t) = \big[(1-e^{-\mu t}) + w\,e^{-\mu t}\big]^{n_0} = \sum_{n=0}^{n_0} w^n \binom{n_0}{n}(e^{-\mu t})^n(1-e^{-\mu t})^{n_0-n}$$
+</div>
+
+<div class="eq-box result">
+  <div class="eq-label">Distribución y momentos</div>
+  $$n(t) \sim \text{Binomial}\; b(n_0;\, e^{-\mu t})$$
+  $$\mathbb{E}[n(t)] = n_0\,e^{-\mu t} \qquad \operatorname{Var}[n(t)] = n_0\,e^{-\mu t}(1-e^{-\mu t})$$
+</div>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<section id="s11">
+<div class="section-header">
+  <span class="section-num">11</span>
+  <h2>Proceso Lineal Nacimiento-Fallecimiento</h2>
+</div>
+
+<h3>11.1 Definición y propiedades</h3>
+$$\{n(t)\};\quad \Omega = \{0,1,2,\ldots\};\quad n(0)=n_0$$
+<p>Tasas: nacimiento $\lambda$, fallecimiento $\mu$. Tasa neta: $\rho = \lambda - \mu$.</p>
+<p><strong>Estado absorbente</strong> en $n=0$ (barrera absorbente): si la población se extingue no puede recuperarse.</p>
+
+<h3>11.2 Sistema de Kolmogorov</h3>
+<div class="eq-box highlight">
+$$P_{n_0,n}'(t) = -n(\lambda+\mu)P_{n_0,n} + (n-1)\lambda P_{n_0,n-1} + (n+1)\mu P_{n_0,n+1}$$
+</div>
+
+<h3>11.3 EDP de la FGP</h3>
+<p>El polinomio de grado 2 en $w$ factoriza como:</p>
+<div class="eq-box highlight">
+$$\frac{\partial G}{\partial t} - (\lambda w - \mu)(w-1)\,\frac{\partial G}{\partial w} = 0$$
+</div>
+
+<h3>11.4 Solución por Lagrange — Primera constante $C_1$</h3>
+<p>Por fracciones parciales:</p>
+<div class="eq-box">
+$$\frac{dw}{-(\lambda w-\mu)(w-1)} = \frac{\lambda/(\lambda-\mu)}{\lambda w-\mu}\,dw + \frac{-1/(\lambda-\mu)}{w-1}\,dw$$
+$$(\lambda-\mu)t + C = \ln(\lambda w-\mu) - \ln(w-1)$$
+$$\boxed{C_1 = \frac{\lambda w - \mu}{w-1}\,e^{-(\lambda-\mu)t}}$$
+</div>
+
+<p>La condición inicial da $f(s)=\big(\frac{\mu-s}{\lambda-s}\big)^{n_0}$ (con $w = (\mu-s)/(\lambda-s)$).</p>
+
+<h3>11.5 FGP final</h3>
+<div class="eq-box result">
+  <div class="eq-label">Para λ ≠ μ</div>
+  $$G_n(w;t) = \left[\frac{\mu\left(e^{-(\lambda-\mu)t}-1\right) - \left(\lambda e^{-(\lambda-\mu)t}-\mu\right)w}{\left(\mu e^{-(\lambda-\mu)t}-\lambda\right) - \lambda\left(e^{-(\lambda-\mu)t}-1\right)w}\right]^{n_0}$$
+</div>
+<div class="eq-box">
+  <div class="eq-label">Para λ = μ (usando L'Hôpital)</div>
+  $$G_n(w;t) = \left[\frac{\mu t + (1-\mu t)w}{(1+\mu t) - \mu t\, w}\right]^{n_0}$$
+</div>
+
+<h3>11.6 Probabilidad de extinción</h3>
+<p>Evaluando $G_n(0;t) = P_{n_0,0}(t)$:</p>
+<div class="eq-box">
+  $$P_{n_0,0}(t) = \left[\frac{\mu(e^{-(\lambda-\mu)t}-1)}{\mu e^{-(\lambda-\mu)t}-\lambda}\right]^{n_0} \quad (\lambda\ne\mu)$$
+</div>
+
+<div class="eq-box result">
+  <div class="eq-label">Probabilidad de extinción final (t → ∞)</div>
+  $$\lim_{t\to\infty}P_{n_0,0}(t) = \begin{cases} \left(\dfrac{\mu}{\lambda}\right)^{n_0} & \lambda > \mu \\ 1 & \lambda \le \mu \end{cases}$$
+</div>
+
+<h3>11.7 Esperanza y varianza</h3>
+<div class="eq-box result">
+$$\mathbb{E}[n(t)] = n_0\,e^{(\lambda-\mu)t}$$
+$$\operatorname{Var}[n(t)] = n_0\,\frac{\lambda+\mu}{\lambda-\mu}\,e^{(\lambda-\mu)t}\left(e^{(\lambda-\mu)t}-1\right) \quad (\lambda\ne\mu)$$
+</div>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<section id="s12">
+<div class="section-header">
+  <span class="section-num">12</span>
+  <h2>Proceso Determinístico</h2>
+</div>
+
+<div class="eq-box">
+$$\frac{dn}{dt} = \lambda\,n(t) \implies n(t)=n(0)\,e^{\lambda t} \quad\text{(solo nacimiento)}$$
+$$\frac{dn}{dt} = -\mu\,n(t) \implies n(t)=n(0)\,e^{-\mu t} \quad\text{(solo fallecimiento)}$$
+$$\frac{dn}{dt} = (\lambda-\mu)\,n(t) \implies n(t)=n(0)\,e^{(\lambda-\mu)t} \quad\text{(combinado)}$$
+</div>
+
+<div class="callout tip">
+  <span class="callout-icon">💡</span>
+  <div>La solución determinística coincide con el valor esperado del proceso estocástico: $\mathbb{E}[n(t)] = n_0\,e^{(\lambda-\mu)t}$</div>
+</div>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<section id="s13">
+<div class="section-header">
+  <span class="section-num">13</span>
+  <h2>Teoría de Colas</h2>
+</div>
+
+<h3>13.1 Componentes de un sistema de colas</h3>
+<ul>
+  <li><strong>Proceso de llegada:</strong> distribución de cómo llegan los clientes</li>
+  <li><strong>Mecanismo de servicio:</strong> número de servidores y distribución de tiempos de atención</li>
+  <li><strong>Disciplina:</strong> regla de selección del próximo cliente (FIFO, LIFO, prioridades, etc.)</li>
+</ul>
+
+<h3>13.2 Notación estándar $A/B/c/k/m$</h3>
+<div class="table-wrap">
+<table>
+  <tr><th>Símbolo</th><th>Significado</th><th>Opciones comunes</th></tr>
+  <tr><td>$A$</td><td>Distribución de llegada</td><td>M (Poisson), D (determinista), $E_k$ (Erlang), G (general)</td></tr>
+  <tr><td>$B$</td><td>Distribución de servicio</td><td>Ídem</td></tr>
+  <tr><td>$c$</td><td>Número de servidores</td><td>1, 2, ...</td></tr>
+  <tr><td>$k$</td><td>Máximo en el sistema</td><td>$\infty$ si no se especifica</td></tr>
+  <tr><td>$m$</td><td>Máximo clientes total</td><td>$\infty$ si no se especifica</td></tr>
+</table>
+</div>
+
+<h3>13.3 Modelo M/M/1 — Fórmulas principales</h3>
+<p>Condición de estabilidad: $\rho = \lambda/\mu < 1$</p>
+
+<div class="table-wrap">
+<table>
+  <tr><th>Métrica</th><th>Símbolo</th><th>Fórmula</th></tr>
+  <tr><td>Utilización del sistema</td><td>$\rho$</td><td>$\lambda/\mu$</td></tr>
+  <tr><td>Prob. sistema vacío</td><td>$P_0$</td><td>$1-\rho$</td></tr>
+  <tr><td>Clientes promedio en sistema</td><td>$L$</td><td>$\rho/(1-\rho)$</td></tr>
+  <tr><td>Clientes promedio en cola</td><td>$L_q$</td><td>$\rho^2/(1-\rho)$</td></tr>
+  <tr><td>Tiempo promedio en sistema</td><td>$W$</td><td>$1/(\mu-\lambda)$</td></tr>
+  <tr><td>Tiempo promedio en cola</td><td>$W_q$</td><td>$\rho/(\mu-\lambda)$</td></tr>
+</table>
+</div>
+
+<p><strong>Ejemplo del curso</strong> ($\lambda=3$, $\mu=4$): $\rho=0.75$, $P_0=0.25$, $L=3$, $L_q=2.25$, $W=1$, $W_q=0.75$</p>
+
+<h3>13.4 Conexión con Birth-Death</h3>
+<p>La cola puede verse como un proceso BD donde las tasas son <em>constantes</em> (no proporcionales al tamaño):</p>
+<div class="eq-box">
+$$P_{n_0,n}'(t) = -(\lambda+\mu)P_{n_0,n} + \lambda P_{n_0,n-1} + \mu P_{n_0,n+1}$$
+</div>
+<div class="eq-box highlight">
+  <div class="eq-label">EDP de la FGM — Queuing</div>
+  $$\frac{\partial M}{\partial t} = \big[{-(\lambda+\mu)} + \lambda e^w + \mu e^{-w}\big]M - \mu e^{-w} P_{n_0,0}(t)$$
+</div>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<section id="s14">
+<div class="section-header">
+  <span class="section-num">14</span>
+  <h2>Proceso BDI — Birth-Death-Immigration</h2>
+</div>
+
+<h3>14.1 Definición</h3>
+<p>Extensión del Birth-Death con inmigración a tasa $\xi$ (independiente del tamaño de la población).</p>
+<div class="callout note">
+  <span class="callout-icon">📌</span>
+  <div><strong>Barrera reflectora</strong> en $n=0$: si se produce una inmigración, la población puede abandonar el estado 0 y "rebotar" al estado 1. A diferencia del BD puro (barrera absorbente).</div>
+</div>
+
+<h3>14.2 Probabilidades infinitesimales</h3>
+<div class="eq-box">
+$$P_{n,n+1} = n\lambda\,\Delta t + \xi\,\Delta t + o(\Delta t) \qquad P_{n,n-1} = n\mu\,\Delta t + o(\Delta t)$$
+$$P_{n,n} = 1 - n(\lambda+\mu)\Delta t - \xi\,\Delta t - o(\Delta t)$$
+</div>
+
+<h3>14.3 Sistema de Kolmogorov</h3>
+<div class="eq-box highlight">
+$$P_{n_0,n}' = \big[-n(\lambda+\mu)-\xi\big]P_{n_0,n} + \big[(n-1)\lambda+\xi\big]P_{n_0,n-1} + (n+1)\mu\,P_{n_0,n+1}$$
+</div>
+
+<h3>14.4 EDP de la FGP</h3>
+<div class="eq-box highlight">
+$$\frac{\partial G}{\partial t} - (\lambda w-\mu)(w-1)\,\frac{\partial G}{\partial w} = \xi(w-1)\,G$$
+</div>
+<p>La diferencia con el BD puro es el término inhomogéneo $\xi(w-1)G$.</p>
+
+<h3>14.5 Segunda constante de Lagrange (nueva)</h3>
+<p>Del cociente $dw/Q = dG/R$:</p>
+<div class="eq-box">
+$$\frac{dw}{-(\lambda w-\mu)} = \frac{dG}{\xi G} \implies C_2 = G_n(w;t)\cdot(\lambda w - \mu)^{\xi/\lambda}$$
+</div>
+
+<h3>14.6 Esperanza del proceso (λ ≠ μ)</h3>
+<div class="eq-box result">
+$$\mathbb{E}[n(t)] = \left(n_0 + \frac{\xi}{\lambda-\mu}\right)e^{(\lambda-\mu)t} - \frac{\xi}{\lambda-\mu}$$
+</div>
+<p>Para $n_0=0$: $\;\mathbb{E}[n(t)] = \dfrac{\xi}{\lambda-\mu}\left(e^{(\lambda-\mu)t}-1\right)$</p>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<section id="s15">
+<div class="section-header">
+  <span class="section-num">15</span>
+  <h2>Proceso BDIM — Birth-Death-Immigration-Migration</h2>
+</div>
+
+<h3>15.1 Definición</h3>
+<p>Extensión del BDI con migración (egreso externo) a tasa $\theta$. Cuatro componentes: $\lambda$, $\mu$, $\xi$, $\theta$.</p>
+
+<h3>15.2 Probabilidades infinitesimales</h3>
+<div class="eq-box">
+$$P_{n,n+1} = n\lambda\Delta t + \xi\Delta t \qquad P_{n,n-1} = n\mu\Delta t + \theta\Delta t$$
+$$P_{n,n} = 1 - n(\lambda+\mu)\Delta t - (\xi+\theta)\Delta t - o(\Delta t)$$
+</div>
+
+<h3>15.3 Sistema de Kolmogorov</h3>
+<div class="eq-box highlight">
+$$P_{n_0,n}' = \big[-n(\lambda+\mu)-(\xi+\theta)\big]P_{n_0,n} + \big[(n-1)\lambda+\xi\big]P_{n_0,n-1} + \big[(n+1)\mu+\theta\big]P_{n_0,n+1}$$
+</div>
+
+<h3>15.4 Esperanza</h3>
+<div class="eq-box result">
+  <div class="eq-label">Para λ ≠ μ</div>
+  $$\mathbb{E}[n(t)] = \left(n_0 + \frac{\theta}{\mu}\right)e^{(\lambda-\mu)t} + \frac{\xi-\theta}{\lambda-\mu}\left(e^{(\lambda-\mu)t}-1\right)$$
+</div>
+<div class="eq-box result">
+  <div class="eq-label">Para λ = μ</div>
+  $$\mathbb{E}[n(t)] = n_0 + (\xi-\theta)\,t$$
+</div>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<section id="s16">
+<div class="section-header">
+  <span class="section-num">16</span>
+  <h2>Proceso Bidimensional Nacimiento-Fallecimiento</h2>
+</div>
+
+<h3>16.1 Definición</h3>
+<p>Proceso $\{n(t)\}=\{f(t),\,v(t)\}$ con dos subpoblaciones (femenina $f$ y masculina $v$):</p>
+<ul>
+  <li>$\lambda_f = \alpha\lambda$: tasa de nacimiento femenino ($\alpha$ = índice de femeneidad)</li>
+  <li>$\lambda_v = \beta\lambda$: tasa de nacimiento masculino</li>
+  <li>$\mu_f$, $\mu_v$: tasas de fallecimiento por género</li>
+</ul>
+
+<h3>16.2 Probabilidades infinitesimales</h3>
+<div class="eq-box">
+$$P_{(f,v),(f+1,v)} = f\lambda_f\Delta t, \quad P_{(f,v),(f,v+1)} = f\lambda_v\Delta t$$
+$$P_{(f,v),(f-1,v)} = f\mu_f\Delta t, \quad P_{(f,v),(f,v-1)} = v\mu_v\Delta t$$
+$$P_{(f,v),(f,v)} = 1 - f(\lambda_f+\lambda_v+\mu_f)\Delta t - v\mu_v\Delta t - o(\Delta t)$$
+</div>
+
+<h3>16.3 EDP de la FGM bidimensional</h3>
+<div class="eq-box highlight">
+$$\frac{\partial M}{\partial t} = \big[{-(\lambda_f+\lambda_v+\mu_f)}+\lambda_f e^{w_1}+\lambda_v e^{w_2}+\mu_f e^{-w_1}\big]\frac{\partial M}{\partial w_1} + \mu_v(e^{-w_2}-1)\frac{\partial M}{\partial w_2}$$
+</div>
+
+<h3>16.4 Valores esperados</h3>
+<div class="eq-box result">
+$$m_1[f(t)] = f_0\,e^{(\lambda_f-\mu_f)t}$$
+$$m_1[v(t)] = \left(v_0 - \frac{\lambda_v f_0}{\lambda_f-\mu_f+\mu_v}\right)e^{-\mu_v t} + \frac{\lambda_v f_0}{\lambda_f-\mu_f+\mu_v}\,e^{(\lambda_f-\mu_f)t}$$
+</div>
+<div class="callout important">
+  <span class="callout-icon">⚠️</span>
+  <div>El tamaño esperado de la población masculina <strong>depende</strong> del de la población femenina. Las subpoblaciones no son independientes.</div>
+</div>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<section id="s17">
+<div class="section-header">
+  <span class="section-num">17</span>
+  <h2>Teorema de Reuter-Ledermann</h2>
+</div>
+
+<h3>17.1 Motivación</h3>
+<p>Antes de resolver cualquier proceso de nacimiento, conviene determinar <em>a priori</em> si la solución del sistema de Kolmogorov es <strong>única</strong>.</p>
+
+<h3>17.2 El criterio</h3>
+<p>Analizar el comportamiento de la serie (donde $\lambda_n$ es la velocidad de ingreso al estado $n$):</p>
+<div class="eq-box highlight">
+$$\sum_{n=n_0}^{+\infty} \frac{1}{\lambda_n}$$
+</div>
+
+<div class="eq-box result">
+  <div class="eq-label">Enunciado del Teorema</div>
+  $$\text{Si}\quad \sum \frac{1}{\lambda_n} = +\infty \;\Longrightarrow\; \text{solución ÚNICA, } P_{n_0,n}(t) \text{ es función de probabilidad}$$
+  $$\text{Si}\quad \sum \frac{1}{\lambda_n} < +\infty \;\Longrightarrow\; \text{solución NO única, proceso potencialmente explosivo}$$
+</div>
+
+<h3>17.3 Casos importantes</h3>
+<p><strong>Proceso lineal</strong> ($\lambda_n = n\lambda$):</p>
+<div class="eq-box">
+$$\sum_{n=n_0}^{\infty}\frac{1}{n\lambda} = \frac{1}{\lambda}\underbrace{\sum_{n=n_0}^{\infty}\frac{1}{n}}_{\text{serie armónica}} = +\infty \quad \checkmark \;\text{(solución única)}$$
+</div>
+
+<p><strong>Proceso de epidemia/contagio</strong> ($\lambda_n = n^2\lambda$):</p>
+<div class="eq-box warning">
+$$\sum_{n=n_0}^{\infty}\frac{1}{n^2\lambda} = \frac{1}{\lambda}\sum_{n=n_0}^{\infty}\frac{1}{n^2} < +\infty \quad \times \;\text{(solución NO única, proceso explosivo posible)}$$
+</div>
+
+<div class="callout important">
+  <span class="callout-icon">⚠️</span>
+  <div>Si la serie converge, se debe fijar un <strong>umbral de tamaño</strong> a partir del cual la población se vuelve explosiva. Esto es típico en modelos de epidemias donde el contagio crece cuadráticamente.</div>
+</div>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<!-- ══════════════════════════════════════ -->
+<section id="s19">
+<div class="section-header">
+  <span class="section-num">19</span>
+  <h2>Aplicaciones del Proceso de Poisson en Ciencias Actuariales</h2>
+</div>
+
+<p>Existen tres situaciones clásicas de aplicación de los Procesos de Poisson en el ámbito actuarial:</p>
+
+<h3>19.1 Contar tipos especiales de eventos (Thinning / Splitting)</h3>
+<p>Dado un proceso de Poisson de tasa $\rho$, supongamos que cada evento $E$ es de tipo 1 con probabilidad $p$ y de tipo 2 con probabilidad $1-p$, <em>independientemente</em> de todo lo demás.</p>
+<div class="callout note">
+  <span class="callout-icon">📌</span>
+  <div><strong>Ejemplo actuarial:</strong> pólizas siniestradas que se presentan ante una aseguradora — interesa contar solo las de cierto tipo (p. ej. siniestros graves vs. leves).</div>
+</div>
+
+<p><strong>Resultado (Splitting de Poisson):</strong></p>
+<div class="eq-box result">
+  <div class="eq-label">Teorema de Splitting</div>
+  $$\text{Si } \{N(t)\} \sim \mathcal{P}(\rho t), \text{ y cada evento es tipo 1 con prob. } p:$$
+  $$\{N_1(t)\} \sim \mathcal{P}(p\rho\, t) \qquad \{N_2(t)\} \sim \mathcal{P}((1-p)\rho\, t)$$
+  $$\text{y además } N_1(t) \perp N_2(t) \text{ (independientes)}$$
+</div>
+<p><strong>Demostración:</strong> La FGP del proceso original es $G(w;t)=e^{\rho t(w-1)}$. La FGP del subproceso de tipo 1 se obtiene reemplazando $w$ por $[p\cdot w + (1-p)]$ (cada evento del original se "clasifica"):
+$$G_1(w;t) = e^{\rho t([pw+(1-p)]-1)} = e^{p\rho t(w-1)} \implies N_1(t)\sim\mathcal{P}(p\rho t)$$
+</p>
+
+<h3>19.2 Agregación (Superposición) de dos procesos de Poisson</h3>
+<p>Si se desea sumar dos (o más) procesos de Poisson <em>independientes</em>:</p>
+<div class="eq-box highlight">
+$$\{N_1(t)\}\sim\mathcal{P}(\rho_1 t), \quad \{N_2(t)\}\sim\mathcal{P}(\rho_2 t), \quad N_1 \perp N_2$$
+</div>
+<div class="eq-box result">
+  <div class="eq-label">Teorema de Superposición</div>
+  $$N(t) = N_1(t) + N_2(t) \sim \mathcal{P}\!\big((\rho_1+\rho_2)\,t\big)$$
+</div>
+<p><strong>Demostración:</strong> Por independencia, la FGP de la suma es el producto de las FGPs:
+$$G(w;t) = G_1(w;t)\cdot G_2(w;t) = e^{\rho_1 t(w-1)}\cdot e^{\rho_2 t(w-1)} = e^{(\rho_1+\rho_2)t(w-1)}$$
+</p>
+<div class="callout tip">
+  <span class="callout-icon">💡</span>
+  <div>Por independencia se asume que dos incrementos, uno de cada proceso, son variables aleatorias independientes. Esta propiedad es clave para modelar sistemas con múltiples fuentes de eventos.</div>
+</div>
+
+<h3>19.3 Mixtura (Mezcla) de Procesos de Poisson</h3>
+<p>Se puede crear un nuevo proceso estocástico como una mezcla de procesos de Poisson: la tasa $\rho$ no es fija sino que es en sí misma una variable aleatoria con distribución $f(\rho)$.</p>
+
+<div class="eq-box highlight">
+  <div class="eq-label">Proceso de Poisson Mixto</div>
+  $$P_y(t) = \int_0^{\infty} \frac{(\rho t)^y}{y!}e^{-\rho t} f(\rho)\,d\rho$$
+</div>
+
+<p><strong>Caso particular relevante:</strong> Si $\rho \sim \Gamma(\alpha, \beta)$, entonces el proceso resultante es una <em>Binomial Negativa</em>:</p>
+<div class="eq-box result">
+$$\rho \sim \Gamma(\alpha,\beta) \implies N(t) \sim \text{Binomial Negativa}$$
+$$P_y(t) = \binom{y+\alpha-1}{y}\left(\frac{\beta t}{1+\beta t}\right)^y\left(\frac{1}{1+\beta t}\right)^{\alpha}$$
+</div>
+
+<h3>19.4 Fórmula recursiva de Panjer</h3>
+<p>En el contexto del ejercicio del parcial, existe una forma recursiva de calcular $P_y(t)$ a partir de las derivadas del sistema de Kolmogorov:</p>
+<div class="eq-box highlight">
+  <div class="eq-label">Relación de Panjer (del parcial 2022)</div>
+  $$P_y(t) = -\frac{1}{\rho}\sum_{j=0}^{y} P'_j(t) \qquad \text{(probabilidad acumulada)}$$
+</div>
+<p>Esta fórmula surge de integrar el sistema de Kolmogorov $P'_y(t) = -\rho P_y(t) + \rho P_{y-1}(t)$ y reorganizar, expresando cada $P_y$ en función de la suma telescópica de derivadas anteriores.</p>
+
+<p><strong>Casos particulares del parcial 2022:</strong></p>
+<div class="eq-box">
+$$P_0(t) = -\frac{1}{\rho}\cdot P'_0(t)$$
+$$P_1(t) = -\frac{1}{\rho}\big[P'_0(t) + P'_1(t)\big]$$
+$$P_y(t) = -\frac{1}{\rho}\sum_{j=0}^{y} P'_j(t)$$
+</div>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<section id="s20">
+<div class="section-header">
+  <span class="section-num">20</span>
+  <h2>Proceso Logístico de Nacimiento-Fallecimiento</h2>
+</div>
+
+<h3>20.1 Motivación</h3>
+<p>El proceso lineal de nacimiento y fallecimiento asume que las tasas son <em>proporcionales al tamaño</em> de la población con tasas fijas $\lambda$ y $\mu$. En el modelo logístico, la tasa de nacimiento <strong>decrece</strong> a medida que la población crece (limitación de recursos, competencia intraespecífica).</p>
+
+<h3>20.2 Tasas de transición</h3>
+<p>La modificación logística introduce una dependencia cuadrática en la tasa efectiva:</p>
+<div class="eq-box highlight">
+$$\lambda_n = \lambda\, n\left(1 - \frac{n}{K}\right)^+ \qquad \mu_n = \mu\, n$$
+</div>
+<p>donde $K$ es la <strong>capacidad de carga</strong> de la población (tamaño de equilibrio).</p>
+
+<div class="callout note">
+  <span class="callout-icon">📌</span>
+  <div>El modelo logístico es el puente entre el proceso de nacimiento puro (crecimiento ilimitado) y la realidad biológica: poblaciones que se estabilizan en torno a un valor de equilibrio $K$. Los gráficos muestran que las trayectorias oscilan alrededor de $n_0$ sin crecer indefinidamente.</div>
+</div>
+
+<h3>20.3 Modelo determinístico logístico</h3>
+<div class="eq-box">
+$$\frac{dn}{dt} = (\lambda - \mu)\,n\left(1 - \frac{n}{K}\right)$$
+</div>
+<p>Cuya solución es la <strong>curva logística</strong>:</p>
+<div class="eq-box result">
+$$n(t) = \frac{K\,n_0\,e^{(\lambda-\mu)t}}{K + n_0(e^{(\lambda-\mu)t}-1)}$$
+</div>
+<p>Para $\lambda > \mu$: la población crece hasta estabilizarse en $K$ (equilibrio estable). Para $\lambda < \mu$: la población decrece hacia 0.</p>
+
+<h3>20.4 Diferencia con el Linear Birth-Death</h3>
+<div class="table-wrap">
+<table>
+  <tr><th>Aspecto</th><th>Linear Birth-Death</th><th>Logístico</th></tr>
+  <tr><td>Tasa de nacimiento</td><td>$\lambda_n = n\lambda$ (lineal)</td><td>$\lambda_n = n\lambda(1-n/K)$ (saturación)</td></tr>
+  <tr><td>Comportamiento largo plazo</td><td>Crecimiento/extinción exponencial</td><td>Convergencia a $K$ o extinción</td></tr>
+  <tr><td>Estado de equilibrio</td><td>No existe (salvo extinción)</td><td>$n^* = K$ (estable)</td></tr>
+  <tr><td>Solución explosiva</td><td>Posible si $\lambda > \mu$</td><td>Imposible (acotada por $K$)</td></tr>
+</table>
+</div>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<section id="s21">
+<div class="section-header">
+  <span class="section-num">21</span>
+  <h2>Simulación de Procesos Estocásticos</h2>
+</div>
+
+<h3>21.1 Concepto general</h3>
+<p>La <strong>simulación</strong> (junto con la Teoría de Colas) es una de las técnicas de Investigación de Operaciones más utilizadas. Permite generar trayectorias del proceso estocástico mediante <em>números pseudoaleatorios</em>, obteniendo estimaciones numéricas de cualquier cantidad de interés.</p>
+
+<div class="callout note">
+  <span class="callout-icon">📌</span>
+  <div>El objetivo es simular los tiempos entre eventos $T_1, T_2, \ldots, T_n$ usando la propiedad de que $T_{i,i+1}\sim\text{Exp}(\rho)$, y a partir de ellos reconstruir la trayectoria del proceso.</div>
+</div>
+
+<h3>21.2 Método de la transformada inversa</h3>
+<p>Para generar una variable aleatoria $T\sim\text{Exp}(\rho)$ a partir de un número pseudoaleatorio $U\sim\text{Uniforme}(0,1)$:</p>
+
+<ol class="steps">
+  <li><span class="step-num">1</span>Generar $U \sim U(0,1)$ (número pseudoaleatorio)</li>
+  <li><span class="step-num">2</span>Aplicar la <strong>transformada inversa</strong>: $T = F^{-1}(U)$</li>
+  <li><span class="step-num">3</span>Como $F_T(t)=1-e^{-\rho t}$, su inversa es: $T = -\frac{1}{\rho}\ln(1-U)$</li>
+  <li><span class="step-num">4</span>Como $1-U\sim U(0,1)$ también, se simplifica a: $T = -\frac{1}{\rho}\ln(U)$</li>
+</ol>
+
+<div class="eq-box result">
+  <div class="eq-label">Generación de tiempos exponenciales</div>
+  $$T_{i,i+1} = -\frac{1}{\rho}\ln(U_i) \qquad U_i \sim U(0,1) \text{ i.i.d.}$$
+</div>
+
+<p><strong>Justificación:</strong> Si $U\sim U(0,1)$, entonces $P(T\le t) = P(-\ln(U)/\rho \le t) = P(U \ge e^{-\rho t}) = 1-e^{-\rho t}$. Es decir, $T\sim\text{Exp}(\rho)$. ✓</p>
+
+<h3>21.3 Algoritmo de simulación de una trayectoria de Poisson</h3>
+<ol class="steps">
+  <li><span class="step-num">1</span>Fijar $t_0=0$, $y_0=0$ (estado inicial determinístico)</li>
+  <li><span class="step-num">2</span>Generar $U_1\sim U(0,1)$; calcular $T_1 = -\frac{1}{\rho}\ln(U_1)$</li>
+  <li><span class="step-num">3</span>El primer evento ocurre en $t_1 = t_0 + T_1$; el proceso sube: $y_1 = y_0+1$</li>
+  <li><span class="step-num">4</span>Repetir: generar $U_i$, calcular $T_i=-\frac{1}{\rho}\ln(U_i)$, actualizar $t_i=t_{i-1}+T_i$, $y_i=y_{i-1}+1$</li>
+  <li><span class="step-num">5</span>Detener cuando $t_i > T_{\max}$ (horizonte de simulación)</li>
+</ol>
+
+<div class="eq-box">
+  <div class="eq-label">Trayectoria simulada</div>
+  $$t_k = \sum_{i=1}^{k} T_i = -\frac{1}{\rho}\sum_{i=1}^{k}\ln(U_i) \qquad y(t) = k \text{ para } t_k \le t < t_{k+1}$$
+</div>
+
+<h3>21.4 Distribución Gamma como suma de exponenciales</h3>
+<p>Si se quiere simular $T_j\sim\Gamma(j,\,1/\rho)$ (tiempo hasta la $j$-ésima ocurrencia):</p>
+<div class="eq-box result">
+$$T_j = \sum_{i=1}^{j} T_{i,i+1} = -\frac{1}{\rho}\sum_{i=1}^{j}\ln(U_i) = -\frac{1}{\rho}\ln\!\left(\prod_{i=1}^{j}U_i\right)$$
+</div>
+<p>Esto es directo por el <strong>teorema de reproductividad de la Gamma</strong>: suma de $j$ exponenciales i.i.d. es Gamma.</p>
+
+<h3>21.5 Del parcial 2022 — Demostración por FGM que $T_5\sim\Gamma(5,\,1/\rho)$</h3>
+<p>Calcular la FGM de $T_5 = T_{0,1}+T_{1,2}+T_{2,3}+T_{3,4}+T_{4,5}$ con cada $T_{i,i+1}\sim\text{Exp}(\rho)$:</p>
+<div class="eq-box">
+$$M_{T_5}(w) = \prod_{i=1}^{5} M_{T_{i,i+1}}(w) = \left(\frac{\rho}{\rho-w}\right)^5 = \left(1-\frac{w}{\rho}\right)^{-5}$$
+</div>
+<p>Esta es la FGM de una distribución $\Gamma(\alpha=5,\,\beta=1/\rho)$, lo cual confirma:</p>
+<div class="eq-box result">
+$$T_5 \sim \Gamma\!\left(5,\;\frac{1}{\rho}\right) \qquad \mathbb{E}[T_5]=\frac{5}{\rho} \qquad \operatorname{Var}[T_5]=\frac{5}{\rho^2}$$
+</div>
+
+<h3>21.6 Estimación numérica por simulación de Monte Carlo</h3>
+<p>Para estimar una probabilidad $P(A)$ con precisión $\varepsilon$:</p>
+<ol class="steps">
+  <li><span class="step-num">1</span>Simular $N$ trayectorias independientes del proceso</li>
+  <li><span class="step-num">2</span>Contar cuántas satisfacen el evento $A$: sea $\hat{N}_A$ ese contador</li>
+  <li><span class="step-num">3</span>Estimar: $\hat{P}(A) = \hat{N}_A / N$</li>
+  <li><span class="step-num">4</span>Por la Ley de Grandes Números: $\hat{P}(A) \xrightarrow{N\to\infty} P(A)$</li>
+</ol>
+<div class="eq-box">
+$$\text{Error estándar: } \operatorname{SE}(\hat{P}) = \sqrt{\frac{\hat{P}(1-\hat{P})}{N}} \approx \frac{0.5}{\sqrt{N}}$$
+</div>
+<p>Para $\varepsilon=0.01$ se necesita $N\approx 2500$ simulaciones; para $\varepsilon=0.001$ se necesita $N\approx 250000$.</p>
+
+<h3>21.7 Estimación de la distribución de $T_j$</h3>
+<p>Para verificar numéricamente que $T_j\sim\Gamma(j,1/\rho)$:</p>
+<ol class="steps">
+  <li><span class="step-num">1</span>Simular $N$ veces los tiempos $T_{0,1},T_{1,2},\ldots,T_{j-1,j}$ acumulándolos</li>
+  <li><span class="step-num">2</span>Ajustar distribuciones al histograma obtenido (usando, p. ej., el paquete <code>fitdistrplus</code> de R)</li>
+  <li><span class="step-num">3</span>Comparar con la Gamma teórica mediante gráficos de diagnóstico (Q-Q plot, P-P plot, densidad)</li>
+</ol>
+</section>
+
+<div class="divider">TABLAS RESUMEN</div>
+
+<section id="s18">
+<div class="section-header">
+  <span class="section-num">18</span>
+  <h2>Tablas Resumen</h2>
+</div>
+
+<h3>Distribuciones resultantes</h3>
+<div class="table-wrap">
+<table>
+  <tr>
+    <th>Proceso</th>
+    <th>Distribución $n(t)$</th>
+    <th>$\mathbb{E}[n(t)]$</th>
+    <th>$\operatorname{Var}[n(t)]$</th>
+  </tr>
+  <tr>
+    <td>Poisson</td>
+    <td>$\mathcal{P}(\rho t)$</td>
+    <td>$\rho t$</td>
+    <td>$\rho t$</td>
+  </tr>
+  <tr>
+    <td>Nacimiento Puro</td>
+    <td>$b^{-1}(n_0;\,e^{-\lambda t})$</td>
+    <td>$n_0 e^{\lambda t}$</td>
+    <td>$n_0 e^{\lambda t}(e^{\lambda t}-1)$</td>
+  </tr>
+  <tr>
+    <td>Fallecimiento Puro</td>
+    <td>$b(n_0;\,e^{-\mu t})$</td>
+    <td>$n_0 e^{-\mu t}$</td>
+    <td>$n_0 e^{-\mu t}(1-e^{-\mu t})$</td>
+  </tr>
+  <tr>
+    <td>Nac.–Fall. ($\lambda\ne\mu$)</td>
+    <td>ver FGP</td>
+    <td>$n_0 e^{(\lambda-\mu)t}$</td>
+    <td>$n_0\tfrac{\lambda+\mu}{\lambda-\mu}e^{\rho t}(e^{\rho t}-1)$</td>
+  </tr>
+  <tr>
+    <td>BDI ($\lambda\ne\mu$)</td>
+    <td>ver FGP</td>
+    <td>$(n_0+\tfrac{\xi}{\rho})e^{\rho t}-\tfrac{\xi}{\rho}$</td>
+    <td>—</td>
+  </tr>
+</table>
+</div>
+
+<h3>EDP de la FGP por proceso</h3>
+<div class="table-wrap">
+<table>
+  <tr><th>Proceso</th><th>EDP</th></tr>
+  <tr><td>Poisson</td><td>$\partial G/\partial t = \rho(w-1)\,G$</td></tr>
+  <tr><td>Nacimiento Puro</td><td>$\partial G/\partial t = \lambda w(w-1)\,\partial G/\partial w$</td></tr>
+  <tr><td>Fallecimiento Puro</td><td>$\partial G/\partial t = \mu(1-w)\,\partial G/\partial w$</td></tr>
+  <tr><td>Birth-Death</td><td>$\partial G/\partial t = (\lambda w-\mu)(w-1)\,\partial G/\partial w$</td></tr>
+  <tr><td>BDI</td><td>$\partial G/\partial t = (\lambda w-\mu)(w-1)\,\partial G/\partial w + \xi(w-1)\,G$</td></tr>
+  <tr><td>BDIM</td><td>$\partial G/\partial t = (\lambda w-\mu)(w-1)\,\partial G/\partial w + [-(\xi+\theta)+\xi w+\theta/w]\,G$</td></tr>
+</table>
+</div>
+
+<h3>Constante $C_1$ de Lagrange (patrón general Birth-Death)</h3>
+<div class="eq-box result">
+$$C_1 = \frac{\lambda w - \mu}{w - 1}\,e^{-(\lambda-\mu)t}$$
+$$\text{Variable auxiliar: } s = \frac{\lambda w-\mu}{w-1} \;\Longrightarrow\; w = \frac{\mu-s}{\lambda-s}$$
+$$\text{Condición inicial: } f(s) = \left(\frac{\mu-s}{\lambda-s}\right)^{n_0}$$
+</div>
+
+</section>
+
+<div class="divider">FIN DEL RESUMEN</div>
+
+</div><!-- /wrapper -->
+
+<a href="#" class="back-top">↑ TOP</a>
+
+</body>
+</html>
