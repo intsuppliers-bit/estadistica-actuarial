@@ -399,7 +399,7 @@ MathJax = {
     <li><a href="#s5">Resolución Artesanal</a></li>
     <li><a href="#s6">Resolución por FGP</a></li>
     <li><a href="#s7">Resolución por FGM — Momentos</a></li>
-    <li><a href="#s8">Dominio del Tiempo — Exp. y Gamma</a></li>
+    <li><a href="#s8">Dominio del Tiempo — Exp., Gamma y Tiempo en BD</a></li>
     <li><a href="#s9">Proceso Lineal de Nacimiento Puro</a></li>
     <li><a href="#s10">Proceso Lineal de Fallecimiento Puro</a></li>
     <li><a href="#s11">Proceso Nacimiento-Fallecimiento Lineal</a></li>
@@ -409,10 +409,10 @@ MathJax = {
     <li><a href="#s15">Proceso BDIM — Birth-Death-Immigration-Migration</a></li>
     <li><a href="#s16">Proceso Bidimensional de Nacimiento-Fallecimiento</a></li>
     <li><a href="#s17">Teorema de Reuter-Ledermann</a></li>
-    <li><a href="#s18">Tablas Resumen</a></li>
     <li><a href="#s19">Aplicaciones Actuariales del Proceso de Poisson</a></li>
     <li><a href="#s20">Proceso Logístico de Nacimiento-Fallecimiento</a></li>
     <li><a href="#s21">Simulación de Procesos Estocásticos</a></li>
+    <li><a href="#s18">Tablas Resumen</a></li>
   </ol>
 </div>
 
@@ -441,6 +441,8 @@ Lo que ocurre en el intervalo $(t_0,\,t)$ depende <em>exclusivamente</em> del es
 </div>
 
 <p><strong>Linealidad:</strong> En un intervalo $[t,\; t+\Delta t)$ solo puede ocurrir <em>a lo sumo un</em> evento $E$. Dos ocurrencias simultáneas tienen probabilidad nula cuando $\Delta t \to 0$.</p>
+
+<p><strong>"Cadlag" y acumulatividad:</strong> El proceso es <em>cadlag</em> (continuo a derecha, con límite a izquierda). Evoluciona exclusivamente hacia la derecha — una vez que el proceso alcanza el estado $j+1$, no puede regresar al estado $j$. Además es <strong>siempre acumulativo</strong>: lo ocurrido no puede deshacerse.</p>
 
 <h3>1.3 Probabilidades de transición</h3>
 <div class="eq-box highlight">
@@ -514,16 +516,23 @@ $$P_y(0) = \begin{cases} 1 & y = 0 \\ 0 & y > 0 \end{cases}$$
 
 <h3>4.1 Derivación</h3>
 <p>Aplicando la condición K-C en $[t,\,t+\Delta t]$ y sustituyendo las probabilidades infinitesimales:</p>
+<div class="eq-box">
 $$P_y(t+\Delta t) = P_y(t)\,[1-\rho\Delta t - o(\Delta t)] + P_{y-1}(t)\,\rho\Delta t + o(\Delta t)\sum_{k\ge 2}P_{y-k}(t)$$
+</div>
 
-<p>Dividiendo por $\Delta t$ y tomando $\lim_{\Delta t\to 0}$:</p>
+<p>Generando el <strong>cociente incremental</strong> — dividiendo ambos miembros por $\Delta t$:</p>
+<div class="eq-box">
+$$\frac{P_y(t+\Delta t) - P_y(t)}{\Delta t} = -\rho\,P_y(t) - \frac{o(\Delta t)}{\Delta t}\,P_y(t) + \rho\,P_{y-1}(t) + \frac{o(\Delta t)}{\Delta t}\sum_{k\ge 2}P_{y-k}(t)$$
+</div>
+
+<p>Tomando $\lim_{\Delta t\to 0}$. Como $\lim_{\Delta t\to 0}\dfrac{o(\Delta t)}{\Delta t} = 0$ por definición de $o(\Delta t)$, los dos términos con $o$ se anulan:</p>
 
 <div class="eq-box result">
   <div class="eq-label">Sistema de Kolmogorov — Proceso de Poisson</div>
   $$\boxed{P_y'(t) \;=\; -\rho\,P_y(t) + \rho\,P_{y-1}(t) \qquad y = 0,1,2,\ldots;\; t\ge 0}$$
 </div>
 
-<p>Es un sistema de <em>infinitas</em> ecuaciones diferenciales-en-diferencias (diferencial en $t$, en diferencias en $y$).</p>
+<p>Es un sistema de <em>infinitas</em> ecuaciones diferenciales-en-diferencias: diferencial en $t$, en diferencias en $y$. Se denomina <strong>Sistema de Ecuaciones Diferenciales de Kolmogorov</strong>.</p>
 </section>
 
 <!-- ══════════════════════════════════════ -->
@@ -548,14 +557,50 @@ $$P_0(t) = e^{-\rho t}$$
 </div>
 
 <h3>5.2 Caso $y = 1$</h3>
-<p>Ecuación diferencial de primer orden <em>no homogénea</em>:</p>
+<p>Sustituyendo $P_0(t) = e^{-\rho t}$ en el sistema, se obtiene una EDO de primer orden <em>no homogénea</em>:</p>
 <div class="eq-box">
 $$P_1'(t) + \rho\,P_1(t) = \rho\,e^{-\rho t}$$
 </div>
-<p>Resolviendo: $P_1(t) = \rho t\, e^{-\rho t}$</p>
 
-<h3>5.3 Solución general — Génesis de la distribución de Poisson</h3>
-<p>Resolviendo inductivamente para todo $y$:</p>
+<p><strong>Solución homogénea:</strong> $P_1^{(h)}(t) = C\,e^{-\rho t}$</p>
+
+<p><strong>Solución particular</strong> (forma $P_1^{(p)}(t) = B\,t\,e^{-\rho t}$, ya que $e^{-\rho t}$ es solución de la homogénea):</p>
+<div class="eq-box">
+$$P_1^{(p)}{}'(t) = B\,e^{-\rho t} - B\rho t\,e^{-\rho t}$$
+$$B\,e^{-\rho t} - B\rho t\,e^{-\rho t} + \rho B t\,e^{-\rho t} = \rho\,e^{-\rho t} \implies B = \rho$$
+$$P_1^{(p)}(t) = \rho t\,e^{-\rho t}$$
+</div>
+
+<p><strong>Solución general:</strong> $P_1(t) = C\,e^{-\rho t} + \rho t\,e^{-\rho t}$</p>
+<p>Condición inicial $P_1(0) = 0 \Rightarrow C = 0$:</p>
+<div class="eq-box result">
+$$P_1(t) = \rho t\,e^{-\rho t} = \frac{(\rho t)^1}{1!}\,e^{-\rho t}$$
+</div>
+
+<h3>5.3 Caso $y = 2$ — el patrón de inducción</h3>
+<p>Sustituyendo $P_1(t) = \rho t\,e^{-\rho t}$ en el sistema:</p>
+<div class="eq-box">
+$$P_2'(t) + \rho\,P_2(t) = \rho\,P_1(t) = \rho^2 t\,e^{-\rho t}$$
+</div>
+<p><strong>Solución homogénea:</strong> $P_2^{(h)}(t) = C\,e^{-\rho t}$</p>
+<p><strong>Solución particular</strong> (la particular de $y=1$ era $Ate^{-\rho t}$, por lo que ahora se prueba $P_2^{(p)} = At^2 e^{-\rho t}$):</p>
+<div class="eq-box">
+$$P_2^{(p)}{}'(t) = 2At\,e^{-\rho t} - A\rho t^2 e^{-\rho t}$$
+$$2At\,e^{-\rho t} - A\rho t^2 e^{-\rho t} + \rho A t^2 e^{-\rho t} = \rho^2 t\,e^{-\rho t}$$
+$$2A = \rho^2 \implies A = \frac{\rho^2}{2}$$
+</div>
+<p>Condición inicial $P_2(0) = 0 \Rightarrow C = 0$:</p>
+<div class="eq-box result">
+$$P_2(t) = \frac{\rho^2}{2}\,t^2\,e^{-\rho t} = \frac{(\rho t)^2}{2!}\,e^{-\rho t}$$
+</div>
+
+<div class="callout tip">
+  <span class="callout-icon">💡</span>
+  <div>El patrón es claro: $y=0 \to e^{-\rho t}$, $y=1 \to \rho t\,e^{-\rho t}$, $y=2 \to \frac{(\rho t)^2}{2!}e^{-\rho t}$. La solución particular siempre tiene la forma $A\,t^y e^{-\rho t}$, y la condición inicial fuerza $C=0$ en todos los casos.</div>
+</div>
+
+<h3>5.4 Solución general — Génesis de la distribución de Poisson</h3>
+<p>Resolviendo inductivamente para todo $y$ con el patrón observado:</p>
 <div class="eq-box result">
   <div class="eq-label">Distribución de Poisson</div>
   $$\boxed{P_y(t) = \frac{(\rho t)^y}{y!}\,e^{-\rho t} \qquad y=0,1,2,\ldots;\; t\ge 0}$$
@@ -589,17 +634,21 @@ $$\frac{\partial G}{\partial t} = -\rho G + \rho w \sum_{y=0}^{\infty} w^{y-1} P
 </div>
 
 <h3>6.3 Resolución por variables separables</h3>
+<p>La EDP obtenida no contiene la derivada de $G$ respecto a $w$. Esto permite tratar $w$ como una <strong>constante</strong> y transformar la EDP en una EDO ordinaria de primer orden en $t$:</p>
 <div class="eq-box">
-$$\frac{dG}{G} = \rho(w-1)\,dt \implies \ln G_y(w;t) = \rho(w-1)t + C$$
-$$G_y(w;t) = C\,e^{\rho(w-1)t}$$
+$$\frac{d}{dt}G = \rho(w-1)\cdot G$$
+</div>
+<p>Resolviendo por variables separables:</p>
+<div class="eq-box">
+$$\frac{dG}{G} = \rho(w-1)\,dt \implies \ln G_y(w;t) = \rho(w-1)t + C \implies G_y(w;t) = C\,e^{\rho(w-1)t}$$
 </div>
 <p>Condición inicial $G_y(w;0)=1 \Rightarrow C=1$. Solución particular:</p>
-$$G_y(w;t) = e^{-\rho t}\cdot e^{\rho t w}$$
+$$G_y(w;t) = e^{\rho(w-1)t} = e^{-\rho t}\cdot e^{\rho t w}$$
 
 <h3>6.4 Identificación de la distribución</h3>
 <p>Desarrollando en serie de potencias de $w$:</p>
 <div class="eq-box result">
-$$G_y(w;t) = e^{-\rho t}\left[1 + \frac{\rho t}{1!}w + \frac{(\rho t)^2}{2!}w^2 + \cdots\right] = \sum_{y=0}^{\infty} w^y \underbrace{\frac{(\rho t)^y}{y!}e^{-\rho t}}_{P_y(t)}$$
+$$G_y(w;t) = e^{-\rho t}\left[1 + \frac{\rho t}{1!}w + \frac{(\rho t)^2}{2!}w^2 + \cdots\right] = \sum_{y=0}^{\infty} w^y \cdot \frac{(\rho t)^y}{y!}e^{-\rho t} = \sum_{y=0}^{\infty} w^y\, P_y(t)$$
 </div>
 <p>Confirmando que el proceso queda definido en forma estricta como $Y_t \sim \mathcal{P}(\rho t)$.</p>
 </section>
@@ -646,7 +695,12 @@ $$m_2\big(y(t)\big) = \rho t + \rho^2 t^2$$
 
 <div class="callout important">
   <span class="callout-icon">⚠️</span>
-  <div>El proceso <strong>no es estacionario</strong>: media y varianza dependen de $t$ y crecen indefinidamente. La definición débil se transforma en estricta porque existe una sucesión infinita de momentos.</div>
+  <div><strong>No-estacionariedad:</strong> la media $\mathbb{E}[y(t)]=\rho t$ y la varianza $\sigma^2[y(t)]=\rho t$ dependen de $t$ y crecen sin límite. Cuando $t\to\infty$ ambas se hacen infinitas, por lo que no se cumple la condición necesaria y suficiente de la <em>estacionariedad débil</em>. Además, la función de probabilidad $P_y(t)$ también depende de $t$, lo que respalda la <em>no-estacionariedad estricta</em>.</div>
+</div>
+
+<div class="callout note">
+  <span class="callout-icon">📌</span>
+  <div>Sin embargo, la definición débil se transforma en estricta: no existe limitación para calcular los infinitos momentos del proceso, por lo que la sucesión infinita de momentos queda bien definida.</div>
 </div>
 </section>
 
@@ -654,30 +708,85 @@ $$m_2\big(y(t)\big) = \rho t + \rho^2 t^2$$
 <section id="s8">
 <div class="section-header">
   <span class="section-num">08</span>
-  <h2>Dominio del Tiempo — Exp. y Gamma</h2>
+  <h2>Dominio del Tiempo — Exp., Gamma y Tiempo en BD</h2>
 </div>
 
 <h3>8.1 Variable tiempo de espera</h3>
-<p>Sea $T_{0,1}$ el tiempo hasta la primera ocurrencia del evento $E$:</p>
+<p>Sea $T_{0,1}$ el tiempo hasta la primera ocurrencia del evento $E$. La probabilidad de que el proceso permanezca en el estado 0 hasta $t$ (es decir, que $E$ aún no haya ocurrido) es exactamente $P_0(t)$:</p>
 <div class="eq-box">
 $$P(T_{0,1} > t) = P_0(t) = e^{-\rho t}$$
-$$F_{T_{0,1}}(t) = 1 - e^{-\rho t} \qquad f_{T_{0,1}}(t) = \rho\,e^{-\rho t}$$
 </div>
+
+<p>Esto establece el puente entre el <strong>dominio de las variables</strong> (donde calculamos $P_y(t)$) y el <strong>dominio del tiempo</strong> (donde estudiamos la variable aleatoria $T$).</p>
+
+<h3>8.2 Función de supervivencia y densidad</h3>
+<p>La expresión anterior es la <strong>función de supervivencia</strong> $S_{T_{0,1}}(t)$. Como es continua y derivable en todo su dominio:</p>
+<div class="eq-box highlight">
+  <div class="eq-label">Función de supervivencia, distribución y densidad</div>
+  $$S_{T_{0,1}}(t) = P(T_{0,1} > t) = e^{-\rho t}$$
+  $$F_{T_{0,1}}(t) = 1 - e^{-\rho t} \qquad f_{T_{0,1}}(t) = \frac{d}{dt}F_{T_{0,1}}(t) = \rho\,e^{-\rho t}$$
+</div>
+<p>La función de densidad confirma que $T_{0,1}\sim\text{Exp}(\rho)$, ya que el tiempo es continuo y el proceso es continuo en el dominio del tiempo.</p>
 
 <div class="eq-box result">
   <div class="eq-label">Condición necesaria y suficiente para proceso de Poisson</div>
   $$T_{i,\,i+1} \sim \text{Exp}(\rho), \quad \text{con} \quad \mathbb{E}(T) = \frac{1}{\rho}, \quad \operatorname{Var}(T) = \frac{1}{\rho^2}$$
 </div>
 
-<h3>8.2 Distribución Gamma — Tiempos acumulados</h3>
-<p>Sea $T_j$ el tiempo hasta la $j$-ésima ocurrencia:</p>
+<div class="callout important">
+  <span class="callout-icon">⚠️</span>
+  <div>Que la variable $T_{i,i+1}$ sea Exponencial es condición <strong>necesaria y suficiente</strong> para que el proceso sea de Poisson. Esta propiedad es examinable: permite verificar el tipo de proceso a partir del dominio del tiempo.</div>
+</div>
+
+<h3>8.3 Distribución Gamma — Tiempos acumulados</h3>
+<p>Sea $T_j$ el tiempo hasta la $j$-ésima ocurrencia del evento $E$ (i.e., hasta el arribo al estado $j$):</p>
 $$T_j = \sum_{i=0}^{j-1} T_{i,\,i+1}$$
-<p>Como las $T_{i,i+1}$ son independientes y Exponenciales, la FGM de su suma es:</p>
+<p>Como las $T_{i,i+1}$ son <em>independientes e idénticamente distribuidas</em> (i.i.d.) $\text{Exp}(\rho)$, por el teorema de reproductividad de la Gamma, la FGM de su suma es:</p>
 <div class="eq-box">
-$$\varphi_{T_j}(w) = \left(\frac{\rho}{\rho-w}\right)^j = \left(1-\frac{w}{\rho}\right)^{-j}$$
+$$\varphi_{T_j}(w) = \prod_{i=1}^{j}\varphi_{T_{i,i+1}}(w) = \left(\frac{\rho}{\rho-w}\right)^j = \left(1-\frac{w}{\rho}\right)^{-j}$$
 </div>
 <div class="eq-box result">
-$$T_j \sim \Gamma\!\left(j,\; \tfrac{1}{\rho}\right)$$
+$$T_j \sim \Gamma\!\left(j,\; \tfrac{1}{\rho}\right) \qquad \mathbb{E}[T_j]=\frac{j}{\rho} \qquad \operatorname{Var}[T_j]=\frac{j}{\rho^2}$$
+</div>
+
+<h3>8.4 Generalización — Tiempo hasta el primer evento en proceso BD</h3>
+<p>En un proceso Birth-Death con tasas $\lambda_n$ y $\mu_n$, la probabilidad de que la población <em>no cambie</em> de tamaño en $[t,\,t+\Delta t]$ es $P_{n_0,n_0}(t,\,t+\Delta t) = 1-(\lambda_n+\mu_n)\Delta t - o(\Delta t)$.</p>
+
+<p>Expresar que $T_{0,1} > t+\Delta t$ es equivalente a decir que el proceso permaneció sin cambios hasta $t+\Delta t$:</p>
+<div class="eq-box">
+$$P(T_{0,1} > t+\Delta t) = P(T_{0,1} > t)\cdot P_{n_0,n_0}(t;\,t+\Delta t)$$
+$$P_{n_0,n_0}(t+\Delta t) = P_{n_0,n_0}(t)\cdot\big[1-(\lambda_n+\mu_n)\Delta t - o(\Delta t)\big]$$
+</div>
+<p>Distribuyendo, dividiendo por $\Delta t$ y tomando $\lim_{\Delta t\to 0}$:</p>
+<div class="eq-box">
+$$\frac{d\,P_{n_0,n_0}(t)}{dt} = -(\lambda_n+\mu_n)\,P_{n_0,n_0}(t)$$
+</div>
+<p>Resolviendo por variables separables con condición inicial $P_{n_0,n_0}(0)=1$:</p>
+<div class="eq-box result">
+  <div class="eq-label">Tiempo hasta el primer evento en proceso BD</div>
+  $$P(T_{0,1} > t) = P_{n_0,n_0}(t) = e^{-(\lambda_n+\mu_n)t}$$
+  $$F_{T_{0,1}}(t) = 1 - e^{-(\lambda_n+\mu_n)t} \qquad f_{T_{0,1}}(t) = (\lambda_n+\mu_n)\,e^{-(\lambda_n+\mu_n)t}$$
+  $$T_{0,1} \sim \text{Exp}(\lambda_n+\mu_n) \qquad \mathbb{E}[T_{0,1}] = \frac{1}{\lambda_n+\mu_n} \qquad \operatorname{Var}[T_{0,1}] = \frac{1}{(\lambda_n+\mu_n)^2}$$
+</div>
+
+<div class="callout important">
+  <span class="callout-icon">⚠️</span>
+  <div>En un proceso Birth-Death con $\lambda_n = n\lambda$ y $\mu_n = n\mu$, el tiempo hasta el primer cambio es $\text{Exp}(n(\lambda+\mu))$. Notar que <strong>no</strong> es condición n&s para que el proceso sea de Poisson (ya que los tiempos entre eventos no son i.i.d. — la tasa depende del estado $n$), a diferencia del caso Poisson puro donde $\lambda_n+\mu_n=\rho$ es constante.</div>
+</div>
+
+<h3>8.5 FGM de la distribución Exponencial — derivación completa</h3>
+<p>Para cualquier $T\sim\text{Exp}(\rho)$, la FGM se calcula por integración directa:</p>
+<div class="eq-box">
+$$M_T(w) = \int_0^{+\infty} e^{wt}\cdot\rho\,e^{-\rho t}\,dt = \rho\int_0^{+\infty} e^{-({\rho-w})t}\,dt$$
+</div>
+<p>Sustitución $u = (\rho-w)t$, $du = (\rho-w)dt$:</p>
+<div class="eq-box">
+$$= \frac{\rho}{\rho-w}\int_0^{+\infty} e^{-u}\,du = \frac{\rho}{\rho-w}\cdot\Gamma(1) = \frac{\rho}{\rho-w}$$
+</div>
+<div class="eq-box result">
+  <div class="eq-label">FGM de la distribución Exponencial</div>
+  $$M_{T}(w) = \frac{\rho}{\rho-w} = \left(1-\frac{w}{\rho}\right)^{-1} \qquad (w < \rho)$$
+  $$\mathbb{E}[T] = M_T'(0) = \frac{1}{\rho} \qquad \operatorname{Var}[T] = M_T''(0) - [M_T'(0)]^2 = \frac{1}{\rho^2}$$
 </div>
 </section>
 
@@ -710,20 +819,32 @@ $$P_{n_0,n}'(t) = -n\lambda\,P_{n_0,n}(t) + (n-1)\lambda\,P_{n_0,n-1}(t)$$
 $$\frac{\partial G}{\partial t} - \lambda w(w-1)\,\frac{\partial G}{\partial w} = 0$$
 </div>
 
-<h3>9.5 Solución por Ecuaciones Auxiliares de Lagrange</h3>
-<p>Sistema: $dt/1 = dw/[-\lambda w(w-1)] = dG/0$</p>
-
-<p><strong>Primera constante $C_1$</strong> (fracciones parciales sobre el cociente $dt/dw$):</p>
+<h3>9.5 Marco general — Ecuaciones Auxiliares de Lagrange</h3>
+<p>Toda EDP de primer orden $PZ_x + QZ_y = R$ surge naturalmente cuando $Z = Z(x;y)$ varía a lo largo de una curva parametrizada por $s$. Aplicando la regla de la cadena:</p>
 <div class="eq-box">
-$$\lambda\,dt = \frac{dw}{w} - \frac{dw}{w-1} \implies \lambda t = \ln\frac{w}{w-1} + C$$
-$$C_1 = \frac{w}{w-1}\,e^{-\lambda t}$$
+$$\frac{dZ}{ds} = \frac{\partial Z}{\partial x}\frac{dx}{ds} + \frac{\partial Z}{\partial y}\frac{dy}{ds} = Z_x\cdot P + Z_y\cdot Q$$
+</div>
+<p>Si $dZ/ds = R$, entonces $Z_xP + Z_yQ = R$. Esto muestra que la EDP equivale a buscar curvas donde $dx/ds = P$, $dy/ds = Q$, $dZ/ds = R$, es decir:</p>
+<div class="eq-box highlight">
+$$\frac{dx}{P} = \frac{dy}{Q} = \frac{dZ}{R} \quad\text{(Sistema Auxiliar de Lagrange)}$$
+</div>
+<p>Cada par de cocientes igualados produce una constante de integración. Con dos constantes $C_1 = u(x,y,Z)$ y $C_2 = v(x,y,Z)$, la solución general implícita es $\phi(u,v)=0$, equivalentemente $Z = f(C_1)$.</p>
+<p>En todos los procesos BD que siguen: $x=t$, $y=w$, $Z=G_n(w;t)$, y los coeficientes $P$, $Q$, $R$ cambian según el proceso.</p>
+
+<h3>9.6 Solución por Lagrange</h3>
+<p>Para este proceso: $P=1$, $Q=-\lambda w(w-1)$, $R=0$. Sistema:</p>
+$$\frac{dt}{1} = \frac{dw}{-\lambda w(w-1)} = \frac{dG}{0}$$
+
+<p><strong>Constante $C_1$</strong> — del primer cociente, por fracciones parciales:</p>
+<div class="eq-box">
+$$\lambda\,dt = \frac{dw}{w} - \frac{dw}{w-1} \implies \lambda t = \ln\frac{w}{w-1} + C \implies C_1 = \frac{w}{w-1}\,e^{-\lambda t}$$
 </div>
 
-<p><strong>Segunda constante:</strong> $dG = 0 \Rightarrow C_2 = G_n(w;t)$</p>
+<p><strong>Constante $C_2$</strong> — del tercer cociente: $dG=0 \Rightarrow C_2=G_n(w;t)$</p>
 
-<p><strong>Solución general:</strong> $G_n(w;t) = f\!\left(\frac{w}{w-1}\,e^{-\lambda t}\right)$</p>
+<p><strong>Solución general:</strong> $G_n(w;t) = f\!\left(\dfrac{w}{w-1}\,e^{-\lambda t}\right)$</p>
 
-<p><strong>Condición inicial</strong> ($t=0$): $G_n(w;0)=w^{n_0}$. Usando variable auxiliar $s = w/(w-1)$:</p>
+<p><strong>Condición inicial</strong> ($t=0$): $G_n(w;0)=w^{n_0}$. Con variable auxiliar $s = w/(w-1)$:</p>
 $$f(s) = \left(\frac{s}{s-1}\right)^{n_0}$$
 
 <p>Generalizando:</p>
@@ -737,9 +858,37 @@ $$f(s) = \left(\frac{s}{s-1}\right)^{n_0}$$
   $$n(t) \sim \text{Binomial Negativa}\; b^{-1}(n_0;\, e^{-\lambda t})$$
 </div>
 
-<h3>9.6 Esperanza y varianza</h3>
+<h3>9.7 Esperanza y varianza por FGM</h3>
+<p>La EDP de la FGM se obtiene multiplicando el sistema de Kolmogorov por $e^{wn}$ y sumando sobre todo el dominio:</p>
+<div class="eq-box highlight">
+$$\frac{\partial M}{\partial t} = \lambda(e^w-1)\,w\,\frac{\partial M}{\partial w}$$
+</div>
+
+<p><strong>Momento de orden 1 — Esperanza:</strong> derivando respecto a $w$ y evaluando en $w=0$, la EDP se reduce a la EDO:</p>
+<div class="eq-box">
+$$\frac{d}{dt}m_1[n(t)] = \lambda\,m_1[n(t)]$$
+</div>
+<p>Resolviendo por variables separables:</p>
+<div class="eq-box">
+$$\frac{dm_1}{m_1} = \lambda\,dt \implies m_1[n(t)] = C\,e^{\lambda t}$$
+</div>
+<p>Condición inicial: $m_1[n(0)] = \sum n\cdot P_{n_0,n}(0) = n_0 \Rightarrow C = n_0$</p>
 <div class="eq-box result">
-$$\mathbb{E}[n(t)] = n_0\,e^{\lambda t} \qquad\quad \operatorname{Var}[n(t)] = n_0\,e^{\lambda t}(e^{\lambda t}-1)$$
+$$\mathbb{E}[n(t)] = n_0\,e^{\lambda t}$$
+</div>
+
+<p><strong>Momento de orden 2 — Varianza:</strong> derivando dos veces respecto a $w$ y evaluando en $w=0$:</p>
+<div class="eq-box">
+$$\frac{d}{dt}m_2[n(t)] = \lambda\,m_1[n(t)] + 2\lambda\,m_2[n(t)] = \lambda\,n_0 e^{\lambda t} + 2\lambda\,m_2$$
+</div>
+<p>EDO no homogénea de primer orden. Solución homogénea: $m_2^{(h)} = C\,e^{2\lambda t}$. Solución particular por coeficientes indeterminados ($m_2^{(p)} = A\,e^{\lambda t}$):</p>
+<div class="eq-box">
+$$A\lambda e^{\lambda t} = \lambda n_0 e^{\lambda t} + 2\lambda A e^{\lambda t} \implies A\lambda - 2\lambda A = \lambda n_0 \implies A = -n_0$$
+$$m_2[n(t)] = C\,e^{2\lambda t} - n_0\,e^{\lambda t}$$
+</div>
+<p>Condición inicial $m_2[n(0)] = n_0^2 \Rightarrow C = n_0^2 + n_0$. Usando $\sigma^2 = m_2 - m_1^2$:</p>
+<div class="eq-box result">
+$$\operatorname{Var}[n(t)] = n_0\,e^{\lambda t}(e^{\lambda t}-1)$$
 </div>
 </section>
 
@@ -788,7 +937,30 @@ $$-\mu\,dt = \frac{dw}{1-w} \implies C_1 = (1-w)\,e^{-\mu t}$$
   $$n(t) \sim \text{Binomial}\; b(n_0;\, e^{-\mu t})$$
   $$\mathbb{E}[n(t)] = n_0\,e^{-\mu t} \qquad \operatorname{Var}[n(t)] = n_0\,e^{-\mu t}(1-e^{-\mu t})$$
 </div>
-</section>
+
+<h3>10.6 Derivación de momentos por FGM</h3>
+<p>La EDP de la FGM del proceso es:</p>
+<div class="eq-box highlight">
+$$\frac{\partial M}{\partial t} = \mu(e^{-w}-1)\,w\,\frac{\partial M}{\partial w}$$
+</div>
+
+<p><strong>Esperanza:</strong> derivando respecto a $w$ y evaluando en $w=0$:</p>
+<div class="eq-box">
+$$\frac{d}{dt}m_1[n(t)] = -\mu\,m_1[n(t)] \implies m_1[n(t)] = C\,e^{-\mu t}$$
+</div>
+<p>Condición inicial $m_1[n(0)] = n_0 \Rightarrow C = n_0$:</p>
+<div class="eq-box result">
+$$\mathbb{E}[n(t)] = n_0\,e^{-\mu t}$$
+</div>
+
+<p><strong>Varianza:</strong> derivando dos veces respecto a $w$ y evaluando en $w=0$:</p>
+<div class="eq-box">
+$$\frac{d}{dt}m_2 = -\mu\,m_1 + 2(-\mu)\,m_2 = -\mu\,n_0 e^{-\mu t} - 2\mu\,m_2$$
+</div>
+<p>Solución: $m_2[n(t)] = C\,e^{-2\mu t} + n_0\,e^{-\mu t}$. Con $m_2[n(0)] = n_0^2$:</p>
+<div class="eq-box result">
+$$\operatorname{Var}[n(t)] = n_0\,e^{-\mu t}(1-e^{-\mu t})$$
+</div>
 
 <!-- ══════════════════════════════════════ -->
 <section id="s11">
@@ -844,12 +1016,50 @@ $$\boxed{C_1 = \frac{\lambda w - \mu}{w-1}\,e^{-(\lambda-\mu)t}}$$
   $$\lim_{t\to\infty}P_{n_0,0}(t) = \begin{cases} \left(\dfrac{\mu}{\lambda}\right)^{n_0} & \lambda > \mu \\ 1 & \lambda \le \mu \end{cases}$$
 </div>
 
-<h3>11.7 Esperanza y varianza</h3>
+<h3>11.7 Derivación completa de momentos por FGM</h3>
+<p>La EDP de la FGM del proceso es:</p>
+<div class="eq-box highlight">
+$$\frac{\partial M}{\partial t} = \big[-(\lambda+\mu) + \lambda e^w + \mu e^{-w}\big]\frac{\partial M}{\partial w}$$
+</div>
+
+<p><strong>Esperanza:</strong> derivando respecto a $w$ y evaluando en $w=0$:</p>
+<div class="eq-box">
+$$\frac{d}{dt}m_1[n(t)] = (\lambda-\mu)\,m_1[n(t)]$$
+</div>
+<p>Resolviendo: $m_1[n(t)] = C\,e^{(\lambda-\mu)t}$. Con $m_1[n(0)]=n_0$:</p>
 <div class="eq-box result">
 $$\mathbb{E}[n(t)] = n_0\,e^{(\lambda-\mu)t}$$
-$$\operatorname{Var}[n(t)] = n_0\,\frac{\lambda+\mu}{\lambda-\mu}\,e^{(\lambda-\mu)t}\left(e^{(\lambda-\mu)t}-1\right) \quad (\lambda\ne\mu)$$
 </div>
-</section>
+
+<p><strong>Varianza — derivación completa:</strong> derivando dos veces respecto a $w$ y evaluando en $w=0$:</p>
+<div class="eq-box">
+$$\frac{d}{dt}m_2[n(t)] = (\mu+\lambda)\,m_1[n(t)] + 2(\lambda-\mu)\,m_2[n(t)]$$
+$$\frac{d}{dt}m_2 - 2(\lambda-\mu)\,m_2 = (\mu+\lambda)\,n_0\,e^{(\lambda-\mu)t}$$
+</div>
+<p>EDO no homogénea de primer orden. <strong>Solución homogénea:</strong></p>
+<div class="eq-box">
+$$m_2^{(h)} = C\,e^{2(\lambda-\mu)t}$$
+</div>
+<p><strong>Solución particular</strong> (forma $m_2^{(p)} = A\,e^{(\lambda-\mu)t}$):</p>
+<div class="eq-box">
+$$A(\lambda-\mu)e^{(\lambda-\mu)t} - 2(\lambda-\mu)A\,e^{(\lambda-\mu)t} = (\mu+\lambda)n_0\,e^{(\lambda-\mu)t}$$
+$$-A(\lambda-\mu) = (\mu+\lambda)n_0 \implies A = \frac{(\mu+\lambda)n_0}{\mu-\lambda}$$
+$$m_2^{(c)} = C\,e^{2(\lambda-\mu)t} + \frac{(\lambda+\mu)n_0}{\mu-\lambda}\,e^{(\lambda-\mu)t}$$
+</div>
+<p><strong>Condición inicial</strong> $m_2[n(0)] = n_0^2$:</p>
+<div class="eq-box">
+$$n_0^2 = C + \frac{(\lambda+\mu)n_0}{\mu-\lambda} \implies C = n_0^2 - \frac{(\lambda+\mu)n_0}{\mu-\lambda}$$
+</div>
+<p>Usando $\sigma^2 = m_2 - m_1^2$:</p>
+<div class="eq-box result">
+  <div class="eq-label">Varianza del proceso BD (λ ≠ μ)</div>
+  $$\operatorname{Var}[n(t)] = n_0\,\frac{\lambda+\mu}{\lambda-\mu}\,e^{(\lambda-\mu)t}\left(e^{(\lambda-\mu)t}-1\right)$$
+</div>
+
+<div class="callout important">
+  <span class="callout-icon">⚠️</span>
+  <div>Este desarrollo completo — EDP de la FGM, derivación de la EDO no homogénea, cálculo de A y C — aparece en los parciales. No alcanza con memorizar el resultado: hay que saber derivarlo desde la EDP.</div>
+</div>
 
 <!-- ══════════════════════════════════════ -->
 <section id="s12">
@@ -858,15 +1068,22 @@ $$\operatorname{Var}[n(t)] = n_0\,\frac{\lambda+\mu}{\lambda-\mu}\,e^{(\lambda-\
   <h2>Proceso Determinístico</h2>
 </div>
 
+<p>El modelo determinístico describe el tamaño de la población cuando se eliminan las fluctuaciones estocásticas y solo se considera la tendencia media. La EDO resultante es:</p>
+
 <div class="eq-box">
-$$\frac{dn}{dt} = \lambda\,n(t) \implies n(t)=n(0)\,e^{\lambda t} \quad\text{(solo nacimiento)}$$
+$$\frac{dn}{dt} = \lambda\,n(t) \implies n(t)=n(0)\,e^{\lambda t} \quad\text{(solo nacimiento — crecimiento de Malthus)}$$
 $$\frac{dn}{dt} = -\mu\,n(t) \implies n(t)=n(0)\,e^{-\mu t} \quad\text{(solo fallecimiento)}$$
 $$\frac{dn}{dt} = (\lambda-\mu)\,n(t) \implies n(t)=n(0)\,e^{(\lambda-\mu)t} \quad\text{(combinado)}$$
 </div>
 
 <div class="callout tip">
   <span class="callout-icon">💡</span>
-  <div>La solución determinística coincide con el valor esperado del proceso estocástico: $\mathbb{E}[n(t)] = n_0\,e^{(\lambda-\mu)t}$</div>
+  <div>La solución determinística coincide exactamente con el <strong>valor esperado del proceso estocástico</strong>: $\mathbb{E}[n(t)] = n_0\,e^{(\lambda-\mu)t}$. Esto significa que el modelo determinístico es la "trayectoria media" alrededor de la cual oscilan las trayectorias estocásticas.</div>
+</div>
+
+<div class="callout note">
+  <span class="callout-icon">📌</span>
+  <div>Para $\lambda > \mu$: crecimiento exponencial ilimitado (modelo de Malthus). Para $\lambda < \mu$: extinción exponencial. Para $\lambda = \mu$: población constante en media. El modelo logístico (§20) corrige el crecimiento ilimitado introduciendo la capacidad de carga $K$.</div>
 </div>
 </section>
 
@@ -908,20 +1125,35 @@ $$\frac{dn}{dt} = (\lambda-\mu)\,n(t) \implies n(t)=n(0)\,e^{(\lambda-\mu)t} \qu
   <tr><td>Clientes promedio en cola</td><td>$L_q$</td><td>$\rho^2/(1-\rho)$</td></tr>
   <tr><td>Tiempo promedio en sistema</td><td>$W$</td><td>$1/(\mu-\lambda)$</td></tr>
   <tr><td>Tiempo promedio en cola</td><td>$W_q$</td><td>$\rho/(\mu-\lambda)$</td></tr>
+  <tr><td>Tiempo en cola <em>dado que hay cola</em></td><td>$W_{qq}$</td><td>$1/(\mu-\lambda)$</td></tr>
+  <tr><td>Clientes en cola <em>dado que hay cola</em></td><td>$L_{qq}$</td><td>$1/(1-\rho)$</td></tr>
+  <tr><td>Rendimiento del sistema</td><td>$X$</td><td>$\lambda$</td></tr>
 </table>
 </div>
 
-<p><strong>Ejemplo del curso</strong> ($\lambda=3$, $\mu=4$): $\rho=0.75$, $P_0=0.25$, $L=3$, $L_q=2.25$, $W=1$, $W_q=0.75$</p>
+<p><strong>Ejemplo del curso</strong> ($\lambda=3$, $\mu=4$): $\rho=0.75$, $P_0=0.25$, $L=3$, $L_q=2.25$, $W=1$, $W_q=0.75$, $W_{qq}=1$, $L_{qq}=4$, $X=3$</p>
 
 <h3>13.4 Conexión con Birth-Death</h3>
-<p>La cola puede verse como un proceso BD donde las tasas son <em>constantes</em> (no proporcionales al tamaño):</p>
+<p>La cola puede verse como un proceso BD donde las tasas son <em>constantes</em> — no proporcionales al tamaño de la población. La diferencia clave con el BD lineal es que aquí $\lambda_n = \lambda$ y $\mu_n = \mu$ para todo $n \ge 1$:</p>
 <div class="eq-box">
 $$P_{n_0,n}'(t) = -(\lambda+\mu)P_{n_0,n} + \lambda P_{n_0,n-1} + \mu P_{n_0,n+1}$$
 </div>
+
+<h3>13.5 EDP de la FGM — término extra y su resolución</h3>
+<p>Multiplicando el sistema de Kolmogorov por $e^{wn}$ y sumando, se llega a la EDP de la FGM:</p>
 <div class="eq-box highlight">
   <div class="eq-label">EDP de la FGM — Queuing</div>
-  $$\frac{\partial M}{\partial t} = \big[{-(\lambda+\mu)} + \lambda e^w + \mu e^{-w}\big]M - \mu e^{-w} P_{n_0,0}(t)$$
+  $$\frac{\partial M}{\partial t} = \big[-(\lambda+\mu) + \lambda e^w + \mu e^{-w}\big]M - \mu e^{-w} P_{n_0,0}(t)$$
 </div>
+
+<p>El término extra $-\mu e^{-w}P_{n_0,0}(t)$ surge porque el proceso de colas tiene una <strong>barrera reflectora en $n=0$</strong>: cuando el sistema está vacío no puede haber egresos, lo que rompe la simetría con el BD lineal y genera un residuo al desarrollar la sumatoria.</p>
+
+<p>Para resolver la EDP se necesita conocer $P_{n_0,0}(t)$. Dando forma funcional a la condición de que en el momento $t$ el sistema se encuentre vacío, se puede demostrar que:</p>
+<div class="eq-box result">
+$$P_{n_0,0}(t) = e^{(\lambda-\mu)t} = e^{\rho t}$$
+</div>
+
+<p>Con esta condición la EDP queda completamente determinada y puede resolverse para obtener los momentos del proceso.</p>
 </section>
 
 <!-- ══════════════════════════════════════ -->
@@ -956,17 +1188,68 @@ $$\frac{\partial G}{\partial t} - (\lambda w-\mu)(w-1)\,\frac{\partial G}{\parti
 <p>La diferencia con el BD puro es el término inhomogéneo $\xi(w-1)G$.</p>
 
 <h3>14.5 Segunda constante de Lagrange (nueva)</h3>
-<p>Del cociente $dw/Q = dG/R$:</p>
+<p>Para $C_2$ se parte del segundo y tercer cociente del sistema auxiliar de Lagrange:</p>
 <div class="eq-box">
-$$\frac{dw}{-(\lambda w-\mu)} = \frac{dG}{\xi G} \implies C_2 = G_n(w;t)\cdot(\lambda w - \mu)^{\xi/\lambda}$$
+$$\frac{dw}{-(\lambda w-\mu)(w-1)} = \frac{dG}{\xi(w-1)G}$$
+</div>
+<p>Simplificando el factor $(w-1)$ de ambos lados:</p>
+<div class="eq-box">
+$$\frac{dw}{-(\lambda w-\mu)} = \frac{dG}{\xi G}$$
+</div>
+<p>Integrando ambos lados de la igualdad:</p>
+<div class="eq-box">
+$$\int\frac{-\xi}{\lambda w-\mu}\,dw = \int\frac{dG}{G} \implies -\frac{\xi}{\lambda}\ln(\lambda w-\mu) = \ln G + C$$
+</div>
+<div class="eq-box result">
+$$C_2 = G_n(w;t)\cdot(\lambda w - \mu)^{\xi/\lambda}$$
 </div>
 
-<h3>14.6 Esperanza del proceso (λ ≠ μ)</h3>
+<h3>14.6 Solución general y particular de la FGP</h3>
+<p>La solución general implícita es:</p>
+<div class="eq-box">
+$$G_n(w;t)\cdot(\lambda w - \mu)^{\xi/\lambda} = f\!\left(\frac{\lambda w-\mu}{w-1}\,e^{-(\lambda-\mu)t}\right)$$
+</div>
+<p>Despejando $G_n$:</p>
+<div class="eq-box">
+$$G_n(w;t) = (\lambda w-\mu)^{-\xi/\lambda}\,f\!\left(\frac{\lambda w-\mu}{w-1}\,e^{-(\lambda-\mu)t}\right)$$
+</div>
+<p>Con la condición inicial $G_n(w;0)=w^{n_0}$ y la variable auxiliar $s=(\lambda w-\mu)/(w-1)$, se obtiene:</p>
+<div class="eq-box">
+$$f(s) = \left(\frac{\mu-s}{\lambda-s}\right)^{n_0}\!\left(\lambda\,\frac{\mu-s}{\lambda-s}-\mu\right)^{\xi/\lambda}$$
+</div>
+<p>Generalizando para cualquier $t$, la <strong>solución final de Landro</strong> es:</p>
+<div class="eq-box result">
+  <div class="eq-label">FGP del Proceso BDI</div>
+  $$G_n(w;t) = \left(\frac{\lambda-\mu}{\lambda e^{-(\lambda-\mu)t}-\mu}\right)^{\!\xi/\lambda}
+  \!\!\left(1 - \frac{\lambda(e^{-(\lambda-\mu)t}-1)\,w}{\lambda e^{-(\lambda-\mu)t}-\mu}\right)^{\!\xi/\lambda}
+  \!\!\left(\frac{\mu(e^{-(\lambda-\mu)t}-1)-(\mu e^{-(\lambda-\mu)t}-\lambda)w}{(\lambda e^{-(\lambda-\mu)t}-\mu)-\lambda(e^{-(\lambda-\mu)t}-1)w}\right)^{\!n_0}$$
+</div>
+
+<h3>14.7 Esperanza del proceso (λ ≠ μ)</h3>
+<p>Derivando la EDP de la FGM respecto a $w$ y evaluando en $w=0$, la ecuación diferencial no homogénea resultante da:</p>
 <div class="eq-box result">
 $$\mathbb{E}[n(t)] = \left(n_0 + \frac{\xi}{\lambda-\mu}\right)e^{(\lambda-\mu)t} - \frac{\xi}{\lambda-\mu}$$
 </div>
 <p>Para $n_0=0$: $\;\mathbb{E}[n(t)] = \dfrac{\xi}{\lambda-\mu}\left(e^{(\lambda-\mu)t}-1\right)$</p>
-</section>
+<div class="callout tip">
+  <span class="callout-icon">💡</span>
+  <div>Cuando $n_0=0$, la población está formada exclusivamente por el aporte inmigratorio: cada familia desciende de un ancestro inmigrante independiente.</div>
+</div>
+
+<h3>14.8 Varianza del proceso BDI por FGM</h3>
+<div class="callout important">
+  <span class="callout-icon">⚠️</span>
+  <div><strong>Toma en exámenes.</strong> La demostración de la varianza del BDI vía FGM es materia de parcial. El procedimiento es idéntico al del BD: derivar la EDP de la FGM dos veces respecto a $w$, evaluar en $w=0$ para obtener una EDO no homogénea para $m_2$, y resolver con condición inicial.</div>
+</div>
+<p>Derivando dos veces la EDP de la FGM del BDI y evaluando en $w=0$:</p>
+<div class="eq-box">
+$$\frac{d}{dt}m_2[n(t)] = (\lambda+\mu)\,m_1[n(t)] + 2(\lambda-\mu)\,m_2[n(t)] + 2\xi$$
+</div>
+<p>Resolviendo la EDO no homogénea con $m_2[n(0)]=n_0^2$ (análogamente al BD):</p>
+<div class="eq-box result">
+  <div class="eq-label">Varianza del proceso BDI (λ ≠ μ)</div>
+  $$\operatorname{Var}[n(t)] = \left(n_0 + \frac{\xi}{\lambda-\mu}\right)\frac{\lambda+\mu}{\lambda-\mu}\,e^{(\lambda-\mu)t}\!\left(e^{(\lambda-\mu)t}-1\right) + \frac{2\xi}{(\lambda-\mu)^2}\!\left(e^{(\lambda-\mu)t}-1\right)$$
+</div>
 
 <!-- ══════════════════════════════════════ -->
 <section id="s15">
@@ -989,7 +1272,24 @@ $$P_{n,n} = 1 - n(\lambda+\mu)\Delta t - (\xi+\theta)\Delta t - o(\Delta t)$$
 $$P_{n_0,n}' = \big[-n(\lambda+\mu)-(\xi+\theta)\big]P_{n_0,n} + \big[(n-1)\lambda+\xi\big]P_{n_0,n-1} + \big[(n+1)\mu+\theta\big]P_{n_0,n+1}$$
 </div>
 
-<h3>15.4 Esperanza</h3>
+<h3>15.4 EDP de la FGP</h3>
+<p>Multiplicando el sistema de Kolmogorov por $w^n$ y sumando sobre todo el dominio, y reordenando los términos:</p>
+<div class="eq-box">
+$$\frac{\partial G}{\partial t} = \big[-(\lambda+\mu)w + \lambda w^2 + \mu\big]\frac{\partial G}{\partial w} + \left(-(\xi+\theta) + \xi w + \frac{\theta}{w}\right)G$$
+</div>
+<p>Factorizando el polinomio de grado 2:</p>
+<div class="eq-box highlight">
+$$\frac{\partial G}{\partial t} - (\lambda w-\mu)(w-1)\frac{\partial G}{\partial w} = \left(-(\xi+\theta) + \xi w + \frac{\theta}{w}\right)G$$
+</div>
+
+<h3>15.5 EDP de la FGM</h3>
+<p>Procediendo de manera análoga con la FGM, multiplicando por $e^{wn}$ y sumando:</p>
+<div class="eq-box highlight">
+$$\frac{\partial M}{\partial t} = \big[-(\lambda+\mu) + \lambda w^2 + \mu\big]\frac{\partial M}{\partial w} + \big[\xi(e^w-1) + \theta(e^{-w}-1)\big]M$$
+</div>
+
+<h3>15.6 Esperanza</h3>
+<p>Derivando la EDP de la FGM respecto a $w$ y evaluando en $w=0$, para la ecuación diferencial no homogénea resultante se obtiene:</p>
 <div class="eq-box result">
   <div class="eq-label">Para λ ≠ μ</div>
   $$\mathbb{E}[n(t)] = \left(n_0 + \frac{\theta}{\mu}\right)e^{(\lambda-\mu)t} + \frac{\xi-\theta}{\lambda-\mu}\left(e^{(\lambda-\mu)t}-1\right)$$
@@ -998,7 +1298,26 @@ $$P_{n_0,n}' = \big[-n(\lambda+\mu)-(\xi+\theta)\big]P_{n_0,n} + \big[(n-1)\lamb
   <div class="eq-label">Para λ = μ</div>
   $$\mathbb{E}[n(t)] = n_0 + (\xi-\theta)\,t$$
 </div>
-</section>
+
+<div class="callout note">
+  <span class="callout-icon">📌</span>
+  <div>El proceso BDIM no tiene barrera absorbente en $n=0$: si se produce una inmigración (proceso independiente del tamaño), la población puede abandonar el estado 0 y "rebotar" al estado 1 (barrera reflectora).</div>
+</div>
+
+<h3>15.7 Varianza por FGM (λ ≠ μ)</h3>
+<p>Derivando dos veces la EDP de la FGM respecto a $w$ y evaluando en $w=0$:</p>
+<div class="eq-box">
+$$\frac{d}{dt}m_2[n(t)] = (\lambda+\mu)\,m_1[n(t)] + 2(\lambda-\mu)\,m_2[n(t)] + (\xi+\theta)$$
+</div>
+<p>Sustituyendo $m_1[n(t)]$ ya conocido y resolviendo la EDO no homogénea resultante:</p>
+<div class="eq-box result">
+  <div class="eq-label">Para λ ≠ μ</div>
+  $$\operatorname{Var}[n(t)] = \left(n_0 + \frac{\theta}{\mu}\right)\frac{\lambda+\mu}{\lambda-\mu}\,e^{(\lambda-\mu)t}\!\left(e^{(\lambda-\mu)t}-1\right) + \frac{\xi+\theta}{(\lambda-\mu)^2}\!\left(e^{2(\lambda-\mu)t}-1\right) - \frac{2(\xi+\theta)}{(\lambda-\mu)^2}\!\left(e^{(\lambda-\mu)t}-1\right)$$
+</div>
+<div class="eq-box result">
+  <div class="eq-label">Para λ = μ</div>
+  $$\operatorname{Var}[n(t)] = \left[n_0(\lambda+\mu) + (\xi+\theta)\right]t$$
+</div>
 
 <!-- ══════════════════════════════════════ -->
 <section id="s16">
@@ -1022,19 +1341,37 @@ $$P_{(f,v),(f-1,v)} = f\mu_f\Delta t, \quad P_{(f,v),(f,v-1)} = v\mu_v\Delta t$$
 $$P_{(f,v),(f,v)} = 1 - f(\lambda_f+\lambda_v+\mu_f)\Delta t - v\mu_v\Delta t - o(\Delta t)$$
 </div>
 
-<h3>16.3 EDP de la FGM bidimensional</h3>
+<h3>16.3 Sistema de Ecuaciones de Kolmogorov</h3>
+<p>A partir de las probabilidades de transición infinitesimal, el sistema de ecuaciones diferenciales-en-diferencias de Kolmogorov es:</p>
+<div class="eq-box highlight">
+$$P'_{(f_0,v_0),(f,v)}(t) = \big[-f(\lambda_f+\lambda_v+\mu_f) - v\mu_v\big]\,P_{(f_0,v_0)(f,v)}$$
+$$+\,(f-1)\lambda_f\,P_{(f_0,v_0)(f-1,v)} + f\lambda_v\,P_{(f_0,v_0)(f,v-1)}$$
+$$+\,(f+1)\mu_f\,P_{(f_0,v_0)(f+1,v)} + (v+1)\mu_v\,P_{(f_0,v_0)(f,v+1)}$$
+$$f,v = 0,1,2,\ldots;\; t\ge 0$$
+</div>
+<p>La FGP y FGM del proceso son funciones de dos argumentos ($w_1$ para la subpoblación femenina, $w_2$ para la masculina):</p>
+<div class="eq-box">
+$$G_{f,v}(w_1,w_2;t) = \sum_{f=0}^{+\infty}\sum_{v=0}^{+\infty} w_1^f\, w_2^v\, P_{(f;v)}(t)$$
+$$M_{f,v}(w_1,w_2;t) = \sum_{f=0}^{+\infty}\sum_{v=0}^{+\infty} e^{w_1 f}\, e^{w_2 v}\, P_{(f;v)}(t)$$
+</div>
+
+<h3>16.4 EDP de la FGM bidimensional</h3>
 <div class="eq-box highlight">
 $$\frac{\partial M}{\partial t} = \big[{-(\lambda_f+\lambda_v+\mu_f)}+\lambda_f e^{w_1}+\lambda_v e^{w_2}+\mu_f e^{-w_1}\big]\frac{\partial M}{\partial w_1} + \mu_v(e^{-w_2}-1)\frac{\partial M}{\partial w_2}$$
 </div>
 
-<h3>16.4 Valores esperados</h3>
+<h3>16.5 Valores esperados</h3>
+<p>Derivando respecto a $w_1$ y evaluando en $w_1=w_2=0$ se obtiene para la subpoblación femenina:</p>
 <div class="eq-box result">
 $$m_1[f(t)] = f_0\,e^{(\lambda_f-\mu_f)t}$$
+</div>
+<p>Derivando respecto a $w_2$ y evaluando en $w_1=w_2=0$ se obtiene para la subpoblación masculina:</p>
+<div class="eq-box result">
 $$m_1[v(t)] = \left(v_0 - \frac{\lambda_v f_0}{\lambda_f-\mu_f+\mu_v}\right)e^{-\mu_v t} + \frac{\lambda_v f_0}{\lambda_f-\mu_f+\mu_v}\,e^{(\lambda_f-\mu_f)t}$$
 </div>
 <div class="callout important">
   <span class="callout-icon">⚠️</span>
-  <div>El tamaño esperado de la población masculina <strong>depende</strong> del de la población femenina. Las subpoblaciones no son independientes.</div>
+  <div>El tamaño esperado de la población masculina <strong>depende</strong> del de la población femenina. Las subpoblaciones no son independientes: la dinámica masculina está "arrastrada" por la femenina a través de los nacimientos.</div>
 </div>
 </section>
 
@@ -1046,7 +1383,7 @@ $$m_1[v(t)] = \left(v_0 - \frac{\lambda_v f_0}{\lambda_f-\mu_f+\mu_v}\right)e^{-
 </div>
 
 <h3>17.1 Motivación</h3>
-<p>Antes de resolver cualquier proceso de nacimiento, conviene determinar <em>a priori</em> si la solución del sistema de Kolmogorov es <strong>única</strong>.</p>
+<p>Antes de resolver cualquier proceso de nacimiento, conviene determinar <em>a priori</em> si la solución del sistema de Kolmogorov es <strong>única</strong>. La primera implicación del teorema requiere desarrollar completamente la FGP en serie de potencias de $w$ y obtener las probabilidades del proceso $P_{n_0,n}(t)$; sin embargo, es posible tener un argumento <em>a priori</em> basado en la velocidad de ingreso $\lambda_n$.</p>
 
 <h3>17.2 El criterio</h3>
 <p>Analizar el comportamiento de la serie (donde $\lambda_n$ es la velocidad de ingreso al estado $n$):</p>
@@ -1060,10 +1397,15 @@ $$\sum_{n=n_0}^{+\infty} \frac{1}{\lambda_n}$$
   $$\text{Si}\quad \sum \frac{1}{\lambda_n} < +\infty \;\Longrightarrow\; \text{solución NO única, proceso potencialmente explosivo}$$
 </div>
 
+<div class="callout note">
+  <span class="callout-icon">📌</span>
+  <div>Si la serie <strong>converge</strong>, existe una probabilidad no nula de que la población asuma un tamaño infinito en un intervalo de tiempo finito (proceso explosivo). La única forma de garantizar que esto no ocurra es que la serie sea divergente, lo que implica que $\lambda_n$ crece a lo sumo linealmente.</div>
+</div>
+
 <h3>17.3 Casos importantes</h3>
 <p><strong>Proceso lineal</strong> ($\lambda_n = n\lambda$):</p>
 <div class="eq-box">
-$$\sum_{n=n_0}^{\infty}\frac{1}{n\lambda} = \frac{1}{\lambda}\underbrace{\sum_{n=n_0}^{\infty}\frac{1}{n}}_{\text{serie armónica}} = +\infty \quad \checkmark \;\text{(solución única)}$$
+$$\sum_{n=n_0}^{\infty}\frac{1}{n\lambda} = \frac{1}{\lambda}\sum_{n=n_0}^{\infty}\frac{1}{n} = +\infty \quad \checkmark \;\text{(serie armónica — solución única)}$$
 </div>
 
 <p><strong>Proceso de epidemia/contagio</strong> ($\lambda_n = n^2\lambda$):</p>
@@ -1136,19 +1478,40 @@ $$\rho \sim \Gamma(\alpha,\beta) \implies N(t) \sim \text{Binomial Negativa}$$
 $$P_y(t) = \binom{y+\alpha-1}{y}\left(\frac{\beta t}{1+\beta t}\right)^y\left(\frac{1}{1+\beta t}\right)^{\alpha}$$
 </div>
 
-<h3>19.4 Fórmula recursiva de Panjer</h3>
-<p>En el contexto del ejercicio del parcial, existe una forma recursiva de calcular $P_y(t)$ a partir de las derivadas del sistema de Kolmogorov:</p>
+<h3>19.4 Fórmula recursiva de Panjer — demostración completa</h3>
+<p>En el Parcial 2PC 2023 se pide demostrar que, siendo $\{Y(t)\}$ un proceso de Poisson con tasa constante $\rho$, la función de probabilidad puede expresarse como:</p>
 <div class="eq-box highlight">
-  <div class="eq-label">Relación de Panjer (del parcial 2022)</div>
+  <div class="eq-label">Fórmula de Panjer (Parcial 2PC 2023)</div>
   $$P_y(t) = -\frac{1}{\rho}\sum_{j=0}^{y} P'_j(t) \qquad \text{(probabilidad acumulada)}$$
 </div>
-<p>Esta fórmula surge de integrar el sistema de Kolmogorov $P'_y(t) = -\rho P_y(t) + \rho P_{y-1}(t)$ y reorganizar, expresando cada $P_y$ en función de la suma telescópica de derivadas anteriores.</p>
 
-<p><strong>Casos particulares del parcial 2022:</strong></p>
+<p><strong>Demostración — caso $y=0$:</strong></p>
 <div class="eq-box">
-$$P_0(t) = -\frac{1}{\rho}\cdot P'_0(t)$$
-$$P_1(t) = -\frac{1}{\rho}\big[P'_0(t) + P'_1(t)\big]$$
-$$P_y(t) = -\frac{1}{\rho}\sum_{j=0}^{y} P'_j(t)$$
+$$P'_0(t) = -\rho P_0(t) + \rho P_{-1}(t) = -\rho P_0(t) \quad \text{(ya que } P_{-1}(t)=0\text{)}$$
+$$\implies P_0(t) = -\frac{1}{\rho}P'_0(t) = -\frac{1}{\rho}\sum_{j=0}^{0}P'_j(t) \quad \checkmark$$
+</div>
+
+<p><strong>Caso $y=1$:</strong></p>
+<div class="eq-box">
+$$P'_1(t) = -\rho P_1(t) + \rho P_0(t) \implies P_1(t) = \frac{1}{\rho}P_0(t) - \frac{1}{\rho}P'_1(t)$$
+$$= -\frac{1}{\rho}P'_0(t) - \frac{1}{\rho}P'_1(t) = -\frac{1}{\rho}\sum_{j=0}^{1}P'_j(t) \quad \checkmark$$
+</div>
+
+<p><strong>Caso $y=2$:</strong></p>
+<div class="eq-box">
+$$P'_2(t) = -\rho P_2(t) + \rho P_1(t) \implies P_2(t) = \frac{1}{\rho}P_1(t) - \frac{1}{\rho}P'_2(t)$$
+$$= -\frac{1}{\rho}\big[P'_0(t) + P'_1(t)\big] - \frac{1}{\rho}P'_2(t) = -\frac{1}{\rho}\sum_{j=0}^{2}P'_j(t) \quad \checkmark$$
+</div>
+
+<p><strong>Generalización inductiva:</strong> suponiendo que $P_{y-1}(t) = -\frac{1}{\rho}\sum_{j=0}^{y-1}P'_j(t)$, entonces:</p>
+<div class="eq-box result">
+$$P'_y(t) = -\rho P_y(t) + \rho P_{y-1}(t) \implies P_y(t) = \frac{1}{\rho}P_{y-1}(t) - \frac{1}{\rho}P'_y(t)$$
+$$= -\frac{1}{\rho}\sum_{j=0}^{y-1}P'_j(t) - \frac{1}{\rho}P'_y(t) = -\frac{1}{\rho}\sum_{j=0}^{y}P'_j(t) \quad \checkmark$$
+</div>
+
+<p><strong>Probabilidad acumulada genérica</strong> (ítem 3 del parcial 2023):</p>
+<div class="eq-box result">
+$$P_y(t) = -\frac{1}{\rho}\sum_{j=0}^{y}P'_j(t) = -\frac{1}{\rho}\sum_{v=0}^{y}\sum_{j=0}^{v}P'_j(t)$$
 </div>
 </section>
 
@@ -1279,6 +1642,206 @@ $$\text{Error estándar: } \operatorname{SE}(\hat{P}) = \sqrt{\frac{\hat{P}(1-\h
   <li><span class="step-num">2</span>Ajustar distribuciones al histograma obtenido (usando, p. ej., el paquete <code>fitdistrplus</code> de R)</li>
   <li><span class="step-num">3</span>Comparar con la Gamma teórica mediante gráficos de diagnóstico (Q-Q plot, P-P plot, densidad)</li>
 </ol>
+
+<h3>21.8 Generación de $X\sim\mathcal{P}(\lambda)$ — Algoritmo de Panjer</h3>
+<p>Para generar una variable aleatoria de Poisson se aprovecha la recursión de Panjer vista en §19: $p_i = \frac{\lambda}{i}\,p_{i-1}$. Esto permite actualizar la probabilidad sin recalcular desde cero en cada paso.</p>
+
+<div class="callout note">
+  <span class="callout-icon">📌</span>
+  <div>El algoritmo verifica sucesivamente si el valor generado es 0, luego 1, luego 2, etc. El número promedio de búsquedas es $1+\lambda$, lo que lo hace eficiente para $\lambda$ pequeño.</div>
+</div>
+
+<ol class="steps">
+  <li><span class="step-num">1</span>Generar un número aleatorio $U\sim U(0,1)$</li>
+  <li><span class="step-num">2</span>Inicializar: $i=0$, $\;p=e^{-\lambda}$, $\;F=p$</li>
+  <li><span class="step-num">3</span>Si $U < F \Rightarrow X=i$ y terminar</li>
+  <li><span class="step-num">4</span>Actualizar: $i=i+1$, $\;p=\dfrac{\lambda}{i}\,p$, $\;F=F+p$</li>
+  <li><span class="step-num">5</span>Volver al paso 3</li>
+</ol>
+
+<div class="eq-box result">
+  <div class="eq-label">Número promedio de búsquedas</div>
+  $$\text{Búsquedas promedio} = 1 + \mathbb{E}[|X-\lambda|] \approx 1 + \lambda \quad\text{(para }\lambda\text{ pequeño)}$$
+  $$\text{Para }\lambda\text{ grande: } \approx 1 + 0.798\sqrt{\lambda}$$
+</div>
+
+<h3>21.9 Método alternativo — Generación de Poisson por producto de uniformes</h3>
+<p>Partiendo de la relación entre el Proceso de Poisson y la distribución Exponencial, se puede generar $N(1)\sim\mathcal{P}(\lambda)$ acumulando uniformes hasta que su producto caiga por debajo de $e^{-\lambda}$:</p>
+<div class="eq-box">
+$$N(1) = \max\left\{n:\;\sum_{i=1}^{n}-\frac{1}{\lambda}\ln(U_i)\le 1\right\} = \max\left\{n:\;\prod_{i=1}^{n}U_i \ge e^{-\lambda}\right\}$$
+</div>
+<div class="eq-box result">
+  <div class="eq-label">Algoritmo — Poisson por producto de uniformes</div>
+  $$N = \min\left\{n:\;\prod_{i=1}^{n}U_i < e^{-\lambda}\right\} - 1$$
+</div>
+<p>Este método tiene la ventaja conceptual de conectar directamente el Proceso de Poisson con la distribución Exponencial y la Gamma: como subproducto, $X = -\frac{1}{\lambda}\sum_{i=1}^{n}\ln(U_i)\sim\Gamma(n,\,1/\lambda)$.</p>
+
+<h3>21.10 Proceso de Poisson No Homogéneo — Método de Adelgazamiento</h3>
+<p>Cuando la tasa de ocurrencia varía con el tiempo — $\lambda(t)$ no constante — el proceso se llama <strong>no homogéneo</strong>. La idea central es generar primero un Proceso de Poisson homogéneo con tasa cota $\lambda \ge \lambda(t)\;\forall\,t\le T$, y luego "adelgazar" (thinning) sus eventos aceptando cada uno con probabilidad $\lambda(t)/\lambda$.</p>
+
+<div class="callout note">
+  <span class="callout-icon">📌</span>
+  <div>Si se cuenta cada evento de un Proceso de Poisson con tasa $\lambda$ que ocurre en el instante $t$ con probabilidad $\lambda(t)/\lambda$, el proceso de conteo resultante es no homogéneo con función de intensidad $\lambda(t)$.</div>
+</div>
+
+<ol class="steps">
+  <li><span class="step-num">1</span>Inicializar $t=0$, $I=0$</li>
+  <li><span class="step-num">2</span>Generar $U_1\sim U(0,1)$; calcular $t = t - \frac{1}{\lambda}\ln(U_1)$. Si $t>T$, terminar.</li>
+  <li><span class="step-num">3</span>Generar $U_2\sim U(0,1)$</li>
+  <li><span class="step-num">4</span>Si $U_2 \le \lambda(t)/\lambda \Rightarrow$ aceptar: $I=I+1$, $S(I)=t$</li>
+  <li><span class="step-num">5</span>Volver al paso 2</li>
+</ol>
+
+<p><strong>Versión mejorada por subintervalos:</strong> si $\lambda(t)$ varía mucho en $[0,T]$, conviene dividir en $k+1$ subintervalos $0=t_0 < t_1 < \ldots < t_k < t_{k+1}=T$ con cotas locales $\lambda_i$ tal que $\lambda(s)\le\lambda_i$ para $s\in[t_{i-1},t_i)$. En cada subintervalo se aplica el algoritmo con su cota local, reduciendo el número de eventos rechazados.</p>
+
+<div class="eq-box highlight">
+  <div class="eq-label">Distribución del tiempo al siguiente evento desde $s$</div>
+  $$F_s(x) = 1 - e^{-\int_0^x \lambda(s+y)\,dy}$$
+</div>
+
+<h3>21.11 Análisis estadístico — criterio de parada</h3>
+<p>En una simulación se busca estimar $\theta = \mathbb{E}[X]$ a partir de $k$ ejecuciones independientes $X_1,\ldots,X_k$. El estimador natural es $\bar{X}_k = \sum_{i=1}^k X_i/k$, insesgado con $\operatorname{ECM}(\hat\theta)=\sigma^2/k$.</p>
+
+<p>Como $\sigma$ no se conoce, se reemplaza por la desviación estándar muestral $S_k$. El criterio de parada es:</p>
+
+<div class="eq-box result">
+  <div class="eq-label">Criterio de parada</div>
+  $$\text{Generar } k \ge 30 \text{ datos y detener cuando } \frac{S_k}{\sqrt{k}} < d$$
+  $$\text{donde } d \text{ es la precisión deseada para la desviación estándar del estimador}$$
+</div>
+
+<p><strong>Ejemplo:</strong> si se quiere que el estimador no difiera del valor real en más de 15 segundos con 95% de confianza, se necesita $1.96\,S_k/\sqrt{k} < 15$.</p>
+
+<p><strong>Caso Bernoulli</strong> (estimación de una probabilidad $p$): como $\operatorname{Var}[X_i]=p(1-p)$, se estima con $\bar{X}_k(1-\bar{X}_k)$ y el criterio de parada es:</p>
+<div class="eq-box">
+$$\sqrt{\frac{\bar{X}_k(1-\bar{X}_k)}{k}} < d$$
+</div>
+
+<p><strong>Intervalo de confianza:</strong> una vez alcanzado el criterio, la estimación de $\theta$ con nivel $1-\alpha$ es:</p>
+<div class="eq-box result">
+$$\bar{X}_k \pm Z_{\alpha/2}\,\frac{S_k}{\sqrt{k}}$$
+</div>
+
+<h3>21.12 Fórmulas recursivas de media y varianza muestral</h3>
+<p>Para evitar recalcular todo desde cero cada vez que se agrega un dato, se usan las siguientes fórmulas recursivas:</p>
+<div class="eq-box result">
+  <div class="eq-label">Actualización recursiva al agregar el dato $X_{j+1}$</div>
+  $$\bar{X}_{j+1} = \bar{X}_j + \frac{X_{j+1}-\bar{X}_j}{j+1}$$
+  $$S_{j+1}^2 = \left(1-\frac{1}{j}\right)S_j^2 + (j+1)\left(\bar{X}_{j+1}-\bar{X}_j\right)^2$$
+</div>
+
+<p><strong>Ejemplo:</strong> con $X_1=5$, $X_2=14$, $X_3=9$:</p>
+<div class="eq-box">
+$$\bar{X}_1=5 \qquad \bar{X}_2=5+\frac{9}{2}=\frac{19}{2} \qquad \bar{X}_3=\frac{19}{2}+\frac{1}{3}\!\left(9-\frac{19}{2}\right)=\frac{28}{3}$$
+$$S_2^2=2\!\left(\frac{19}{2}-5\right)^{\!2}=\frac{81}{2} \qquad S_3^2=\frac{81}{4}+3\!\left(\frac{28}{3}-\frac{19}{2}\right)^{\!2}=\frac{61}{3}$$
+</div>
+
+<h3>21.13 Pruebas de Bondad de Ajuste</h3>
+<p>Una vez generados los datos de simulación, se verifican con pruebas estadísticas que la distribución supuesta es congruente con los datos observados.</p>
+
+<h4 style="font-family:'Outfit',sans-serif;font-size:0.95rem;font-weight:600;color:var(--accent2);margin:1.2rem 0 0.6rem;">Chi-cuadrado — datos discretos</h4>
+<p>Se observan $n$ variables i.i.d. $Y_i$ que asumen $k$ valores posibles. Se testea $H_0: P[Y=i]=p_i$.</p>
+<div class="eq-box highlight">
+  <div class="eq-label">Estadístico Chi-cuadrado</div>
+  $$T = \sum_{i=1}^{k}\frac{(N_i - np_i)^2}{np_i} \;\xrightarrow{\;n\to\infty\;}\; \chi^2_{k-1} \quad\text{bajo }H_0$$
+</div>
+<p>donde $N_i$ es la cantidad observada de $Y_j=i$. Se rechaza $H_0$ cuando $T$ es grande:</p>
+<div class="eq-box">
+$$\text{P-valor} = P_{H_0}(\chi^2_{k-1} \ge T^e) \quad \text{— se rechaza }H_0\text{ si P-valor} < 0.05$$
+</div>
+
+<p><strong>Ejemplo:</strong> $X\in\{1,2,3,4,5\}$ uniforme discreta, muestra $n=50$, frecuencias $N_i = \{12,5,19,7,7\}$:</p>
+<div class="eq-box">
+$$T = \frac{(12-10)^2+(5-10)^2+(19-10)^2+(7-10)^2+(7-10)^2}{10} = \frac{4+25+81+9+9}{10} = 12.8$$
+$$\text{P-valor} = P(\chi^2_4 > 12.8) = 0.0122 \implies \text{se rechaza }H_0$$
+</div>
+
+<h4 style="font-family:'Outfit',sans-serif;font-size:0.95rem;font-weight:600;color:var(--accent2);margin:1.2rem 0 0.6rem;">Kolmogorov-Smirnov — datos continuos</h4>
+<p>Para datos continuos se usa la <strong>Función de Distribución Empírica</strong>:</p>
+<div class="eq-box">
+$$\tilde{F}(x) = \frac{\#\{i: Y_i \le x\}}{n}$$
+</div>
+<p>El estadístico KS mide la máxima distancia entre la distribución empírica y la teórica $F$:</p>
+<div class="eq-box highlight">
+  <div class="eq-label">Estadístico de Kolmogorov-Smirnov</div>
+  $$D = \max_x\,|\tilde{F}(x) - F(x)|$$
+</div>
+<p>Para calcular $D$ en la práctica, con los valores ordenados $U_{(1)}\le\cdots\le U_{(n)}$:</p>
+<div class="eq-box result">
+$$D = \max\left\{\frac{j}{n}-U_{(j)},\;U_{(j)}-\frac{j-1}{n}:\;j=1,\ldots,n\right\}$$
+</div>
+<p>El P-valor se estima por simulación: se generan muestras de $U(0,1)$ y se calcula la proporción con $D \ge d$ (el valor observado).</p>
+
+<div class="callout tip">
+  <span class="callout-icon">💡</span>
+  <div>KS es más poderoso que la discretización Chi-cuadrado para datos continuos porque usa toda la información de la muestra sin agrupar en intervalos. El paquete <code>fitdistrplus</code> de R implementa ambas pruebas automáticamente.</div>
+</div>
+
+<h3>21.14 Generación de VA Discretas — método general</h3>
+<p>Sea $X$ una VA discreta con función de probabilidad $P[X=x_j]=p_j$ ($j=0,1,\ldots$). La <strong>Transformada Inversa Discreta</strong> consiste en generar $U\sim U(0,1)$ y devolver $X=x_j$ cuando $U$ cae en el intervalo acumulado correspondiente:</p>
+
+<div class="eq-box highlight">
+  <div class="eq-label">Método de la Transformada Inversa Discreta</div>
+  $$X = x_j \quad\text{si}\quad F(x_{j-1}) \le U < F(x_j) \quad\text{donde}\quad F(x_k)=\sum_{i=0}^k p_i$$
+</div>
+
+<ol class="steps">
+  <li><span class="step-num">1</span>Generar $U\sim U(0,1)$</li>
+  <li><span class="step-num">2</span>Si $U < p_0 \Rightarrow X=x_0$ y terminar</li>
+  <li><span class="step-num">3</span>Si $U < p_0+p_1 \Rightarrow X=x_1$ y terminar</li>
+  <li><span class="step-num">4</span>Continuar hasta encontrar el $j$ tal que $F(x_{j-1})\le U < F(x_j)$</li>
+</ol>
+
+<div class="callout important">
+  <span class="callout-icon">⚠️</span>
+  <div><strong>Optimización:</strong> el tiempo promedio de búsqueda es proporcional al número de intervalos recorridos. Para minimizarlo, conviene ordenar los valores $x_j$ en <strong>orden decreciente de $p_j$</strong> — los valores más probables se verifican primero. Esto es especialmente útil cuando las probabilidades son muy desiguales.</div>
+</div>
+
+<p><strong>Ejemplo:</strong> $p_1=0.20$, $p_2=0.15$, $p_3=0.25$, $p_4=0.40$. Versión estándar vs. optimizada:</p>
+<div class="eq-box">
+$$\text{Estándar: } U<0.20\to x_1,\quad U<0.35\to x_2,\quad U<0.60\to x_3,\quad \text{resto}\to x_4$$
+$$\text{Optimizada: } U<0.40\to x_4,\quad U<0.65\to x_3,\quad U<0.85\to x_1,\quad \text{resto}\to x_2$$
+</div>
+
+<h3>21.15 Generación de VA Geométrica</h3>
+<p>La Geométrica $X\sim G(p)$ cuenta la cantidad de fracasos hasta el primer éxito: $P[X=i]=pq^{i-1}$ con $q=1-p$. Su función de distribución es $F(j)=1-q^j$.</p>
+
+<p>La condición $F(j-1)\le U < F(j)$ equivale a $q^{j-1}>1-U\ge q^j$, lo que toma logaritmos y despeja $j$ directamente (sin búsqueda iterativa):</p>
+
+<div class="eq-box result">
+  <div class="eq-label">Fórmula cerrada para la Geométrica</div>
+  $$X = \left\lfloor\frac{\ln(U)}{\ln(q)}\right\rfloor + 1 \qquad U\sim U(0,1)$$
+</div>
+
+<div class="callout tip">
+  <span class="callout-icon">💡</span>
+  <div>Como $1-U\sim U(0,1)$ también, se usa directamente $\ln(U)/\ln(q)$ en vez de $\ln(1-U)/\ln(q)$. Esta fórmula cerrada es la ventaja de la Geométrica frente a otras discretas: no requiere iterar sobre valores de $j$.</div>
+</div>
+
+<h3>21.16 Generación de VA Binomial con algoritmo de Panjer</h3>
+<p>Para $X\sim B(n,p)$ la recursión de Panjer es:</p>
+<div class="eq-box highlight">
+  <div class="eq-label">Recursión de Panjer para la Binomial</div>
+  $$p_{i+1} = \frac{n-i}{i+1}\cdot\frac{p}{1-p}\cdot p_i \qquad\text{con}\quad p_0 = (1-p)^n = q^n$$
+</div>
+
+<ol class="steps">
+  <li><span class="step-num">1</span>Generar $U\sim U(0,1)$</li>
+  <li><span class="step-num">2</span>Inicializar: $c=p/(1-p)$, $\;i=0$, $\;p_r=q^n$, $\;F=p_r$</li>
+  <li><span class="step-num">3</span>Si $U < F \Rightarrow X=i$ y terminar</li>
+  <li><span class="step-num">4</span>Actualizar: $i=i+1$, $\;p_r = c\cdot\dfrac{n-i+1}{i}\cdot p_r$, $\;F=F+p_r$</li>
+  <li><span class="step-num">5</span>Volver al paso 3</li>
+</ol>
+
+<div class="eq-box result">
+  <div class="eq-label">Número promedio de búsquedas</div>
+  $$\text{Búsquedas promedio} = 1 + np \qquad\text{(valor esperado de }X\text{)}$$
+</div>
+
+<div class="callout note">
+  <span class="callout-icon">📌</span>
+  <div>La conexión con §21.8 y §19 es directa: el mismo principio de Panjer — recursión $p_i = (a+b/i)\,p_{i-1}$ — aplica tanto para generar la VA como para calcular sus probabilidades. Para Poisson $a=0$, $b=\lambda$; para Binomial $a=-p/(1-p)$, $b=(n+1)p/(1-p)$.</div>
+</div>
 </section>
 
 <div class="divider">TABLAS RESUMEN</div>
@@ -1318,15 +1881,21 @@ $$\text{Error estándar: } \operatorname{SE}(\hat{P}) = \sqrt{\frac{\hat{P}(1-\h
   </tr>
   <tr>
     <td>Nac.–Fall. ($\lambda\ne\mu$)</td>
-    <td>ver FGP</td>
+    <td>ver FGP §11</td>
     <td>$n_0 e^{(\lambda-\mu)t}$</td>
     <td>$n_0\tfrac{\lambda+\mu}{\lambda-\mu}e^{\rho t}(e^{\rho t}-1)$</td>
   </tr>
   <tr>
     <td>BDI ($\lambda\ne\mu$)</td>
-    <td>ver FGP</td>
+    <td>ver FGP §14</td>
     <td>$(n_0+\tfrac{\xi}{\rho})e^{\rho t}-\tfrac{\xi}{\rho}$</td>
-    <td>—</td>
+    <td>$(n_0+\tfrac{\xi}{\rho})\tfrac{\lambda+\mu}{\rho}e^{\rho t}(e^{\rho t}-1)+\tfrac{2\xi}{\rho^2}(e^{\rho t}-1)^2$</td>
+  </tr>
+  <tr>
+    <td>BDIM ($\lambda\ne\mu$)</td>
+    <td>ver FGP §15</td>
+    <td>$(n_0+\tfrac{\theta}{\mu})e^{\rho t}+\tfrac{\xi-\theta}{\rho}(e^{\rho t}-1)$</td>
+    <td>ver §15.7</td>
   </tr>
 </table>
 </div>
@@ -1334,7 +1903,7 @@ $$\text{Error estándar: } \operatorname{SE}(\hat{P}) = \sqrt{\frac{\hat{P}(1-\h
 <h3>EDP de la FGP por proceso</h3>
 <div class="table-wrap">
 <table>
-  <tr><th>Proceso</th><th>EDP</th></tr>
+  <tr><th>Proceso</th><th>EDP de la FGP</th></tr>
   <tr><td>Poisson</td><td>$\partial G/\partial t = \rho(w-1)\,G$</td></tr>
   <tr><td>Nacimiento Puro</td><td>$\partial G/\partial t = \lambda w(w-1)\,\partial G/\partial w$</td></tr>
   <tr><td>Fallecimiento Puro</td><td>$\partial G/\partial t = \mu(1-w)\,\partial G/\partial w$</td></tr>
@@ -1344,11 +1913,35 @@ $$\text{Error estándar: } \operatorname{SE}(\hat{P}) = \sqrt{\frac{\hat{P}(1-\h
 </table>
 </div>
 
-<h3>Constante $C_1$ de Lagrange (patrón general Birth-Death)</h3>
+<h3>EDP de la FGM por proceso</h3>
+<div class="table-wrap">
+<table>
+  <tr><th>Proceso</th><th>EDP de la FGM</th></tr>
+  <tr><td>Poisson</td><td>$\partial M/\partial t = \rho(e^w-1)\,M$</td></tr>
+  <tr><td>Nacimiento Puro</td><td>$\partial M/\partial t = \lambda(e^w-1)\,w\,\partial M/\partial w$</td></tr>
+  <tr><td>Fallecimiento Puro</td><td>$\partial M/\partial t = \mu(e^{-w}-1)\,w\,\partial M/\partial w$</td></tr>
+  <tr><td>Birth-Death</td><td>$\partial M/\partial t = [-(\lambda+\mu)+\lambda e^w+\mu e^{-w}]\,\partial M/\partial w$</td></tr>
+  <tr><td>BDI</td><td>$\partial M/\partial t = [-(\lambda+\mu)+\lambda e^w+\mu e^{-w}]\,\partial M/\partial w + \xi(e^w-1)M$</td></tr>
+  <tr><td>BDIM</td><td>$\partial M/\partial t = [-(\lambda+\mu)+\lambda e^w+\mu e^{-w}]\,\partial M/\partial w + [\xi(e^w-1)+\theta(e^{-w}-1)]M$</td></tr>
+  <tr><td>Queuing M/M/1</td><td>$\partial M/\partial t = [-(\lambda+\mu)+\lambda e^w+\mu e^{-w}]M - \mu e^{-w}P_{n_0,0}(t)$</td></tr>
+</table>
+</div>
+
+<h3>Constantes de Lagrange — patrón general BD y variantes</h3>
 <div class="eq-box result">
-$$C_1 = \frac{\lambda w - \mu}{w - 1}\,e^{-(\lambda-\mu)t}$$
+$$C_1 = \frac{\lambda w - \mu}{w - 1}\,e^{-(\lambda-\mu)t} \qquad\text{(Birth-Death, BDI, BDIM)}$$
 $$\text{Variable auxiliar: } s = \frac{\lambda w-\mu}{w-1} \;\Longrightarrow\; w = \frac{\mu-s}{\lambda-s}$$
 $$\text{Condición inicial: } f(s) = \left(\frac{\mu-s}{\lambda-s}\right)^{n_0}$$
+</div>
+
+<div class="table-wrap">
+<table>
+  <tr><th>Proceso</th><th>$C_1$</th><th>$C_2$</th></tr>
+  <tr><td>Nacimiento Puro</td><td>$\tfrac{w}{w-1}\,e^{-\lambda t}$</td><td>$G_n(w;t)$</td></tr>
+  <tr><td>Fallecimiento Puro</td><td>$(1-w)\,e^{-\mu t}$</td><td>$G_n(w;t)$</td></tr>
+  <tr><td>Birth-Death</td><td>$\tfrac{\lambda w-\mu}{w-1}\,e^{-(\lambda-\mu)t}$</td><td>$G_n(w;t)$</td></tr>
+  <tr><td>BDI</td><td>$\tfrac{\lambda w-\mu}{w-1}\,e^{-(\lambda-\mu)t}$</td><td>$G_n(w;t)\cdot(\lambda w-\mu)^{\xi/\lambda}$</td></tr>
+</table>
 </div>
 
 </section>
