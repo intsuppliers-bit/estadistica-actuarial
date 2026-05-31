@@ -1927,6 +1927,65 @@ $$\text{Optimizada: } U<0.40\to x_4,\quad U<0.65\to x_3,\quad U<0.85\to x_1,\qua
 </table>
 </div>
 
+<h3>Probabilidades de transición infinitesimal</h3>
+<p>En un intervalo $[t,\,t+\Delta t)$, para cada proceso se tienen tres tipos de transición. Las expresiones son válidas hasta orden $o(\Delta t)$.</p>
+<div class="table-wrap">
+<table>
+  <tr>
+    <th>Proceso</th>
+    <th>$P_{n,\,n+1}(\Delta t)$ <span style="font-weight:400;color:var(--text-dim)">(nacimiento)</span></th>
+    <th>$P_{n,\,n-1}(\Delta t)$ <span style="font-weight:400;color:var(--text-dim)">(muerte)</span></th>
+    <th>$P_{n,\,n}(\Delta t)$ <span style="font-weight:400;color:var(--text-dim)">(permanencia)</span></th>
+  </tr>
+  <tr>
+    <td>Poisson</td>
+    <td>$\rho\,\Delta t$</td>
+    <td>$0$</td>
+    <td>$1 - \rho\,\Delta t$</td>
+  </tr>
+  <tr>
+    <td>Nacimiento Puro</td>
+    <td>$\lambda n\,\Delta t$</td>
+    <td>$0$</td>
+    <td>$1 - \lambda n\,\Delta t$</td>
+  </tr>
+  <tr>
+    <td>Fallecimiento Puro</td>
+    <td>$0$</td>
+    <td>$\mu n\,\Delta t$</td>
+    <td>$1 - \mu n\,\Delta t$</td>
+  </tr>
+  <tr>
+    <td>Birth-Death</td>
+    <td>$\lambda n\,\Delta t$</td>
+    <td>$\mu n\,\Delta t$</td>
+    <td>$1 - (\lambda+\mu)n\,\Delta t$</td>
+  </tr>
+  <tr>
+    <td>BDI</td>
+    <td>$(\lambda n + \xi)\,\Delta t$</td>
+    <td>$\mu n\,\Delta t$</td>
+    <td>$1 - [(\lambda+\mu)n+\xi]\,\Delta t$</td>
+  </tr>
+  <tr>
+    <td>BDIM</td>
+    <td>$(\lambda n + \xi)\,\Delta t$</td>
+    <td>$(\mu n + \theta)\,\Delta t$</td>
+    <td>$1 - [(\lambda+\mu)n+\xi+\theta]\,\Delta t$</td>
+  </tr>
+  <tr>
+    <td>Queuing M/M/1</td>
+    <td>$\lambda\,\Delta t$</td>
+    <td>$\mu\,\Delta t \;\;(n\ge 1)$</td>
+    <td>$1 - (\lambda+\mu)\,\Delta t \;\;(n\ge 1)$</td>
+  </tr>
+</table>
+</div>
+<div class="callout note">
+  <span class="callout-icon">📌</span>
+  <div>En todos los casos $\sum_{k\ge 2}P_{n,\,n+k}(\Delta t) = o(\Delta t)$. La fila de Poisson es el caso particular de Nacimiento Puro con tasa constante $\rho$ (independiente de $n$). La columna de permanencia se obtiene siempre como complemento: $P_{n,n} = 1 - P_{n,n+1} - P_{n,n-1}$.</div>
+</div>
+
 <h3>Constantes de Lagrange — patrón general BD y variantes</h3>
 <div class="eq-box result">
 $$C_1 = \frac{\lambda w - \mu}{w - 1}\,e^{-(\lambda-\mu)t} \qquad\text{(Birth-Death, BDI, BDIM)}$$
