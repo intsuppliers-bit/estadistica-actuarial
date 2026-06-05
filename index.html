@@ -385,6 +385,7 @@ MathJax = {
     <span>Prof. Rodrigo Del Rosso</span>
     <span>Procesos de Poisson &amp; Birth‑Death</span>
     <span>FGP · FGM · Lagrange</span>
+    <span>Simulación · GLM</span>
   </div>
 </div>
 
@@ -411,7 +412,8 @@ MathJax = {
     <li><a href="#s17">Teorema de Reuter-Ledermann</a></li>
     <li><a href="#s19">Aplicaciones Actuariales del Proceso de Poisson</a></li>
     <li><a href="#s20">Proceso Logístico de Nacimiento-Fallecimiento</a></li>
-    <li><a href="#s21">Simulación de Procesos Estocásticos</a></li>
+    <li><a href="#s21">Simulación — Métodos y Análisis Estadístico</a></li>
+    <li><a href="#s22">Modelos Lineales Generalizados (GLM)</a></li>
     <li><a href="#s18">Tablas Resumen</a></li>
   </ol>
 </div>
@@ -1563,286 +1565,457 @@ $$n(t) = \frac{K\,n_0\,e^{(\lambda-\mu)t}}{K + n_0(e^{(\lambda-\mu)t}-1)}$$
 <section id="s21">
 <div class="section-header">
   <span class="section-num">21</span>
-  <h2>Simulación de Procesos Estocásticos</h2>
+  <h2>Simulación — Métodos y Análisis Estadístico</h2>
 </div>
 
-<h3>21.1 Concepto general</h3>
-<p>La <strong>simulación</strong> (junto con la Teoría de Colas) es una de las técnicas de Investigación de Operaciones más utilizadas. Permite generar trayectorias del proceso estocástico mediante <em>números pseudoaleatorios</em>, obteniendo estimaciones numéricas de cualquier cantidad de interés.</p>
+<h3>21.1 Concepto de simulación</h3>
+<p>La <strong>simulación</strong> es la capacidad de generar números aleatorios que representen el valor de una variable aleatoria. Actualmente, las computadoras generan de manera sucesiva <em>números pseudoaleatorios</em> — una serie de valores que tienen la apariencia de distribuirse como $U(0,1)$ aunque hayan sido generados de manera determinística.</p>
 
 <div class="callout note">
   <span class="callout-icon">📌</span>
-  <div>El objetivo es simular los tiempos entre eventos $T_1, T_2, \ldots, T_n$ usando la propiedad de que $T_{i,i+1}\sim\text{Exp}(\rho)$, y a partir de ellos reconstruir la trayectoria del proceso.</div>
+  <div><strong>Estabilidad de frecuencia relativa:</strong> a medida que aumenta $n$, la frecuencia relativa de un evento se aproxima a su probabilidad teórica. El esquema general: $U_i\sim U(0,1)$ (input) → modelo estocástico → $X_i$ (output), donde $X_i\in\mathbb{R}$ o $X_i\in\{0,1\}$.</div>
 </div>
 
-<h3>21.2 Método de la transformada inversa</h3>
-<p>Para generar una variable aleatoria $T\sim\text{Exp}(\rho)$ a partir de un número pseudoaleatorio $U\sim\text{Uniforme}(0,1)$:</p>
+<h3>21.2 Método de la Transformada Inversa</h3>
+<p>Dado que $F(x)$ toma valores en $[0,1]$, la idea es <strong>igualar $F(x)$ al número aleatorio $U$ generado</strong> y despejar $x$: $F(X)=U \implies X=F^{-1}(U)$.</p>
 
-<ol class="steps">
-  <li><span class="step-num">1</span>Generar $U \sim U(0,1)$ (número pseudoaleatorio)</li>
-  <li><span class="step-num">2</span>Aplicar la <strong>transformada inversa</strong>: $T = F^{-1}(U)$</li>
-  <li><span class="step-num">3</span>Como $F_T(t)=1-e^{-\rho t}$, su inversa es: $T = -\frac{1}{\rho}\ln(1-U)$</li>
-  <li><span class="step-num">4</span>Como $1-U\sim U(0,1)$ también, se simplifica a: $T = -\frac{1}{\rho}\ln(U)$</li>
-</ol>
-
-<div class="eq-box result">
-  <div class="eq-label">Generación de tiempos exponenciales</div>
-  $$T_{i,i+1} = -\frac{1}{\rho}\ln(U_i) \qquad U_i \sim U(0,1) \text{ i.i.d.}$$
-</div>
-
-<p><strong>Justificación:</strong> Si $U\sim U(0,1)$, entonces $P(T\le t) = P(-\ln(U)/\rho \le t) = P(U \ge e^{-\rho t}) = 1-e^{-\rho t}$. Es decir, $T\sim\text{Exp}(\rho)$. ✓</p>
-
-<h3>21.3 Algoritmo de simulación de una trayectoria de Poisson</h3>
-<ol class="steps">
-  <li><span class="step-num">1</span>Fijar $t_0=0$, $y_0=0$ (estado inicial determinístico)</li>
-  <li><span class="step-num">2</span>Generar $U_1\sim U(0,1)$; calcular $T_1 = -\frac{1}{\rho}\ln(U_1)$</li>
-  <li><span class="step-num">3</span>El primer evento ocurre en $t_1 = t_0 + T_1$; el proceso sube: $y_1 = y_0+1$</li>
-  <li><span class="step-num">4</span>Repetir: generar $U_i$, calcular $T_i=-\frac{1}{\rho}\ln(U_i)$, actualizar $t_i=t_{i-1}+T_i$, $y_i=y_{i-1}+1$</li>
-  <li><span class="step-num">5</span>Detener cuando $t_i > T_{\max}$ (horizonte de simulación)</li>
-</ol>
-
-<div class="eq-box">
-  <div class="eq-label">Trayectoria simulada</div>
-  $$t_k = \sum_{i=1}^{k} T_i = -\frac{1}{\rho}\sum_{i=1}^{k}\ln(U_i) \qquad y(t) = k \text{ para } t_k \le t < t_{k+1}$$
-</div>
-
-<h3>21.4 Distribución Gamma como suma de exponenciales</h3>
-<p>Si se quiere simular $T_j\sim\Gamma(j,\,1/\rho)$ (tiempo hasta la $j$-ésima ocurrencia):</p>
-<div class="eq-box result">
-$$T_j = \sum_{i=1}^{j} T_{i,i+1} = -\frac{1}{\rho}\sum_{i=1}^{j}\ln(U_i) = -\frac{1}{\rho}\ln\!\left(\prod_{i=1}^{j}U_i\right)$$
-</div>
-<p>Esto es directo por el <strong>teorema de reproductividad de la Gamma</strong>: suma de $j$ exponenciales i.i.d. es Gamma.</p>
-
-<h3>21.5 Del parcial 2022 — Demostración por FGM que $T_5\sim\Gamma(5,\,1/\rho)$</h3>
-<p>Calcular la FGM de $T_5 = T_{0,1}+T_{1,2}+T_{2,3}+T_{3,4}+T_{4,5}$ con cada $T_{i,i+1}\sim\text{Exp}(\rho)$:</p>
-<div class="eq-box">
-$$M_{T_5}(w) = \prod_{i=1}^{5} M_{T_{i,i+1}}(w) = \left(\frac{\rho}{\rho-w}\right)^5 = \left(1-\frac{w}{\rho}\right)^{-5}$$
-</div>
-<p>Esta es la FGM de una distribución $\Gamma(\alpha=5,\,\beta=1/\rho)$, lo cual confirma:</p>
-<div class="eq-box result">
-$$T_5 \sim \Gamma\!\left(5,\;\frac{1}{\rho}\right) \qquad \mathbb{E}[T_5]=\frac{5}{\rho} \qquad \operatorname{Var}[T_5]=\frac{5}{\rho^2}$$
-</div>
-
-<h3>21.6 Estimación numérica por simulación de Monte Carlo</h3>
-<p>Para estimar una probabilidad $P(A)$ con precisión $\varepsilon$:</p>
-<ol class="steps">
-  <li><span class="step-num">1</span>Simular $N$ trayectorias independientes del proceso</li>
-  <li><span class="step-num">2</span>Contar cuántas satisfacen el evento $A$: sea $\hat{N}_A$ ese contador</li>
-  <li><span class="step-num">3</span>Estimar: $\hat{P}(A) = \hat{N}_A / N$</li>
-  <li><span class="step-num">4</span>Por la Ley de Grandes Números: $\hat{P}(A) \xrightarrow{N\to\infty} P(A)$</li>
-</ol>
-<div class="eq-box">
-$$\text{Error estándar: } \operatorname{SE}(\hat{P}) = \sqrt{\frac{\hat{P}(1-\hat{P})}{N}} \approx \frac{0.5}{\sqrt{N}}$$
-</div>
-<p>Para $\varepsilon=0.01$ se necesita $N\approx 2500$ simulaciones; para $\varepsilon=0.001$ se necesita $N\approx 250000$.</p>
-
-<h3>21.7 Estimación de la distribución de $T_j$</h3>
-<p>Para verificar numéricamente que $T_j\sim\Gamma(j,1/\rho)$:</p>
-<ol class="steps">
-  <li><span class="step-num">1</span>Simular $N$ veces los tiempos $T_{0,1},T_{1,2},\ldots,T_{j-1,j}$ acumulándolos</li>
-  <li><span class="step-num">2</span>Ajustar distribuciones al histograma obtenido (usando, p. ej., el paquete <code>fitdistrplus</code> de R)</li>
-  <li><span class="step-num">3</span>Comparar con la Gamma teórica mediante gráficos de diagnóstico (Q-Q plot, P-P plot, densidad)</li>
-</ol>
-
-<h3>21.8 Generación de $X\sim\mathcal{P}(\lambda)$ — Algoritmo de Panjer</h3>
-<p>Para generar una variable aleatoria de Poisson se aprovecha la recursión de Panjer vista en §19: $p_i = \frac{\lambda}{i}\,p_{i-1}$. Esto permite actualizar la probabilidad sin recalcular desde cero en cada paso.</p>
-
-<div class="callout note">
-  <span class="callout-icon">📌</span>
-  <div>El algoritmo verifica sucesivamente si el valor generado es 0, luego 1, luego 2, etc. El número promedio de búsquedas es $1+\lambda$, lo que lo hace eficiente para $\lambda$ pequeño.</div>
-</div>
-
-<ol class="steps">
-  <li><span class="step-num">1</span>Generar un número aleatorio $U\sim U(0,1)$</li>
-  <li><span class="step-num">2</span>Inicializar: $i=0$, $\;p=e^{-\lambda}$, $\;F=p$</li>
-  <li><span class="step-num">3</span>Si $U < F \Rightarrow X=i$ y terminar</li>
-  <li><span class="step-num">4</span>Actualizar: $i=i+1$, $\;p=\dfrac{\lambda}{i}\,p$, $\;F=F+p$</li>
-  <li><span class="step-num">5</span>Volver al paso 3</li>
-</ol>
-
-<div class="eq-box result">
-  <div class="eq-label">Número promedio de búsquedas</div>
-  $$\text{Búsquedas promedio} = 1 + \mathbb{E}[|X-\lambda|] \approx 1 + \lambda \quad\text{(para }\lambda\text{ pequeño)}$$
-  $$\text{Para }\lambda\text{ grande: } \approx 1 + 0.798\sqrt{\lambda}$$
-</div>
-
-<h3>21.9 Método alternativo — Generación de Poisson por producto de uniformes</h3>
-<p>Partiendo de la relación entre el Proceso de Poisson y la distribución Exponencial, se puede generar $N(1)\sim\mathcal{P}(\lambda)$ acumulando uniformes hasta que su producto caiga por debajo de $e^{-\lambda}$:</p>
-<div class="eq-box">
-$$N(1) = \max\left\{n:\;\sum_{i=1}^{n}-\frac{1}{\lambda}\ln(U_i)\le 1\right\} = \max\left\{n:\;\prod_{i=1}^{n}U_i \ge e^{-\lambda}\right\}$$
-</div>
-<div class="eq-box result">
-  <div class="eq-label">Algoritmo — Poisson por producto de uniformes</div>
-  $$N = \min\left\{n:\;\prod_{i=1}^{n}U_i < e^{-\lambda}\right\} - 1$$
-</div>
-<p>Este método tiene la ventaja conceptual de conectar directamente el Proceso de Poisson con la distribución Exponencial y la Gamma: como subproducto, $X = -\frac{1}{\lambda}\sum_{i=1}^{n}\ln(U_i)\sim\Gamma(n,\,1/\lambda)$.</p>
-
-<h3>21.10 Proceso de Poisson No Homogéneo — Método de Adelgazamiento</h3>
-<p>Cuando la tasa de ocurrencia varía con el tiempo — $\lambda(t)$ no constante — el proceso se llama <strong>no homogéneo</strong>. La idea central es generar primero un Proceso de Poisson homogéneo con tasa cota $\lambda \ge \lambda(t)\;\forall\,t\le T$, y luego "adelgazar" (thinning) sus eventos aceptando cada uno con probabilidad $\lambda(t)/\lambda$.</p>
-
-<div class="callout note">
-  <span class="callout-icon">📌</span>
-  <div>Si se cuenta cada evento de un Proceso de Poisson con tasa $\lambda$ que ocurre en el instante $t$ con probabilidad $\lambda(t)/\lambda$, el proceso de conteo resultante es no homogéneo con función de intensidad $\lambda(t)$.</div>
-</div>
-
-<ol class="steps">
-  <li><span class="step-num">1</span>Inicializar $t=0$, $I=0$</li>
-  <li><span class="step-num">2</span>Generar $U_1\sim U(0,1)$; calcular $t = t - \frac{1}{\lambda}\ln(U_1)$. Si $t>T$, terminar.</li>
-  <li><span class="step-num">3</span>Generar $U_2\sim U(0,1)$</li>
-  <li><span class="step-num">4</span>Si $U_2 \le \lambda(t)/\lambda \Rightarrow$ aceptar: $I=I+1$, $S(I)=t$</li>
-  <li><span class="step-num">5</span>Volver al paso 2</li>
-</ol>
-
-<p><strong>Versión mejorada por subintervalos:</strong> si $\lambda(t)$ varía mucho en $[0,T]$, conviene dividir en $k+1$ subintervalos $0=t_0 < t_1 < \ldots < t_k < t_{k+1}=T$ con cotas locales $\lambda_i$ tal que $\lambda(s)\le\lambda_i$ para $s\in[t_{i-1},t_i)$. En cada subintervalo se aplica el algoritmo con su cota local, reduciendo el número de eventos rechazados.</p>
-
+<h4 style="font-family:'Outfit',sans-serif;font-size:0.95rem;font-weight:600;color:var(--accent2);margin:1.2rem 0 0.6rem;">VA Discreta</h4>
+<p>Se construye la FDA y se determina en qué intervalo cae $U$:</p>
 <div class="eq-box highlight">
-  <div class="eq-label">Distribución del tiempo al siguiente evento desde $s$</div>
-  $$F_s(x) = 1 - e^{-\int_0^x \lambda(s+y)\,dy}$$
-</div>
-
-<h3>21.11 Análisis estadístico — criterio de parada</h3>
-<p>En una simulación se busca estimar $\theta = \mathbb{E}[X]$ a partir de $k$ ejecuciones independientes $X_1,\ldots,X_k$. El estimador natural es $\bar{X}_k = \sum_{i=1}^k X_i/k$, insesgado con $\operatorname{ECM}(\hat\theta)=\sigma^2/k$.</p>
-
-<p>Como $\sigma$ no se conoce, se reemplaza por la desviación estándar muestral $S_k$. El criterio de parada es:</p>
-
-<div class="eq-box result">
-  <div class="eq-label">Criterio de parada</div>
-  $$\text{Generar } k \ge 30 \text{ datos y detener cuando } \frac{S_k}{\sqrt{k}} < d$$
-  $$\text{donde } d \text{ es la precisión deseada para la desviación estándar del estimador}$$
-</div>
-
-<p><strong>Ejemplo:</strong> si se quiere que el estimador no difiera del valor real en más de 15 segundos con 95% de confianza, se necesita $1.96\,S_k/\sqrt{k} < 15$.</p>
-
-<p><strong>Caso Bernoulli</strong> (estimación de una probabilidad $p$): como $\operatorname{Var}[X_i]=p(1-p)$, se estima con $\bar{X}_k(1-\bar{X}_k)$ y el criterio de parada es:</p>
-<div class="eq-box">
-$$\sqrt{\frac{\bar{X}_k(1-\bar{X}_k)}{k}} < d$$
-</div>
-
-<p><strong>Intervalo de confianza:</strong> una vez alcanzado el criterio, la estimación de $\theta$ con nivel $1-\alpha$ es:</p>
-<div class="eq-box result">
-$$\bar{X}_k \pm Z_{\alpha/2}\,\frac{S_k}{\sqrt{k}}$$
-</div>
-
-<h3>21.12 Fórmulas recursivas de media y varianza muestral</h3>
-<p>Para evitar recalcular todo desde cero cada vez que se agrega un dato, se usan las siguientes fórmulas recursivas:</p>
-<div class="eq-box result">
-  <div class="eq-label">Actualización recursiva al agregar el dato $X_{j+1}$</div>
-  $$\bar{X}_{j+1} = \bar{X}_j + \frac{X_{j+1}-\bar{X}_j}{j+1}$$
-  $$S_{j+1}^2 = \left(1-\frac{1}{j}\right)S_j^2 + (j+1)\left(\bar{X}_{j+1}-\bar{X}_j\right)^2$$
-</div>
-
-<p><strong>Ejemplo:</strong> con $X_1=5$, $X_2=14$, $X_3=9$:</p>
-<div class="eq-box">
-$$\bar{X}_1=5 \qquad \bar{X}_2=5+\frac{9}{2}=\frac{19}{2} \qquad \bar{X}_3=\frac{19}{2}+\frac{1}{3}\!\left(9-\frac{19}{2}\right)=\frac{28}{3}$$
-$$S_2^2=2\!\left(\frac{19}{2}-5\right)^{\!2}=\frac{81}{2} \qquad S_3^2=\frac{81}{4}+3\!\left(\frac{28}{3}-\frac{19}{2}\right)^{\!2}=\frac{61}{3}$$
-</div>
-
-<h3>21.13 Pruebas de Bondad de Ajuste</h3>
-<p>Una vez generados los datos de simulación, se verifican con pruebas estadísticas que la distribución supuesta es congruente con los datos observados.</p>
-
-<h4 style="font-family:'Outfit',sans-serif;font-size:0.95rem;font-weight:600;color:var(--accent2);margin:1.2rem 0 0.6rem;">Chi-cuadrado — datos discretos</h4>
-<p>Se observan $n$ variables i.i.d. $Y_i$ que asumen $k$ valores posibles. Se testea $H_0: P[Y=i]=p_i$.</p>
-<div class="eq-box highlight">
-  <div class="eq-label">Estadístico Chi-cuadrado</div>
-  $$T = \sum_{i=1}^{k}\frac{(N_i - np_i)^2}{np_i} \;\xrightarrow{\;n\to\infty\;}\; \chi^2_{k-1} \quad\text{bajo }H_0$$
-</div>
-<p>donde $N_i$ es la cantidad observada de $Y_j=i$. Se rechaza $H_0$ cuando $T$ es grande:</p>
-<div class="eq-box">
-$$\text{P-valor} = P_{H_0}(\chi^2_{k-1} \ge T^e) \quad \text{— se rechaza }H_0\text{ si P-valor} < 0.05$$
-</div>
-
-<p><strong>Ejemplo:</strong> $X\in\{1,2,3,4,5\}$ uniforme discreta, muestra $n=50$, frecuencias $N_i = \{12,5,19,7,7\}$:</p>
-<div class="eq-box">
-$$T = \frac{(12-10)^2+(5-10)^2+(19-10)^2+(7-10)^2+(7-10)^2}{10} = \frac{4+25+81+9+9}{10} = 12.8$$
-$$\text{P-valor} = P(\chi^2_4 > 12.8) = 0.0122 \implies \text{se rechaza }H_0$$
-</div>
-
-<h4 style="font-family:'Outfit',sans-serif;font-size:0.95rem;font-weight:600;color:var(--accent2);margin:1.2rem 0 0.6rem;">Kolmogorov-Smirnov — datos continuos</h4>
-<p>Para datos continuos se usa la <strong>Función de Distribución Empírica</strong>:</p>
-<div class="eq-box">
-$$\tilde{F}(x) = \frac{\#\{i: Y_i \le x\}}{n}$$
-</div>
-<p>El estadístico KS mide la máxima distancia entre la distribución empírica y la teórica $F$:</p>
-<div class="eq-box highlight">
-  <div class="eq-label">Estadístico de Kolmogorov-Smirnov</div>
-  $$D = \max_x\,|\tilde{F}(x) - F(x)|$$
-</div>
-<p>Para calcular $D$ en la práctica, con los valores ordenados $U_{(1)}\le\cdots\le U_{(n)}$:</p>
-<div class="eq-box result">
-$$D = \max\left\{\frac{j}{n}-U_{(j)},\;U_{(j)}-\frac{j-1}{n}:\;j=1,\ldots,n\right\}$$
-</div>
-<p>El P-valor se estima por simulación: se generan muestras de $U(0,1)$ y se calcula la proporción con $D \ge d$ (el valor observado).</p>
-
-<div class="callout tip">
-  <span class="callout-icon">💡</span>
-  <div>KS es más poderoso que la discretización Chi-cuadrado para datos continuos porque usa toda la información de la muestra sin agrupar en intervalos. El paquete <code>fitdistrplus</code> de R implementa ambas pruebas automáticamente.</div>
-</div>
-
-<h3>21.14 Generación de VA Discretas — método general</h3>
-<p>Sea $X$ una VA discreta con función de probabilidad $P[X=x_j]=p_j$ ($j=0,1,\ldots$). La <strong>Transformada Inversa Discreta</strong> consiste en generar $U\sim U(0,1)$ y devolver $X=x_j$ cuando $U$ cae en el intervalo acumulado correspondiente:</p>
-
-<div class="eq-box highlight">
-  <div class="eq-label">Método de la Transformada Inversa Discreta</div>
+  <div class="eq-label">Transformada Inversa Discreta</div>
   $$X = x_j \quad\text{si}\quad F(x_{j-1}) \le U < F(x_j) \quad\text{donde}\quad F(x_k)=\sum_{i=0}^k p_i$$
 </div>
 
+<p><strong>Ejemplo:</strong> $p_1=0.20$, $p_2=0.15$, $p_3=0.25$, $p_4=0.40$:</p>
+<div class="table-wrap">
+<table>
+  <tr><th>$x$</th><th>$P(x)$</th><th>$F(x)$</th><th>Intervalo de $U$</th></tr>
+  <tr><td>1</td><td>0.20</td><td>0.20</td><td>$U < 0.20$</td></tr>
+  <tr><td>2</td><td>0.15</td><td>0.35</td><td>$0.20 \le U < 0.35$</td></tr>
+  <tr><td>3</td><td>0.25</td><td>0.60</td><td>$0.35 \le U < 0.60$</td></tr>
+  <tr><td>4</td><td>0.40</td><td>1.00</td><td>$0.60 \le U < 1$</td></tr>
+</table>
+</div>
+
+<h4 style="font-family:'Outfit',sans-serif;font-size:0.95rem;font-weight:600;color:var(--accent2);margin:1.2rem 0 0.6rem;">VA Exponencial (continua)</h4>
+<div class="eq-box result">
+  <div class="eq-label">Inversa de la Exponencial</div>
+  $$1-e^{-\lambda x}=U \implies X = -\frac{1}{\lambda}\ln(1-U) = -\frac{1}{\lambda}\ln U$$
+</div>
+
+<h4 style="font-family:'Outfit',sans-serif;font-size:0.95rem;font-weight:600;color:var(--accent2);margin:1.2rem 0 0.6rem;">VA Uniforme $U(a,b)$</h4>
+<div class="eq-box result">
+  $$X = U\cdot(b-a)+a \;\;\text{(continua)} \qquad X = \text{ent}(n\cdot U)+a \;\;\text{(discreta, }n=b-a+1\text{ valores)}$$
+</div>
+
+<h4 style="font-family:'Outfit',sans-serif;font-size:0.95rem;font-weight:600;color:var(--accent2);margin:1.2rem 0 0.6rem;">VA Geométrica (discreta)</h4>
+<p>$P[X=i]=p\cdot q^{i-1}$, $\;F_X(j)=1-q^{j-1}$. Igualando a $U$ y tomando logaritmo:</p>
+<div class="eq-box result">
+  <div class="eq-label">Fórmula cerrada — Geométrica</div>
+  $$X = \text{ent}\!\left(\frac{\log(U)}{\log(q)}\right)+1$$
+</div>
+
+<h3>21.3 Generación de Procesos de Poisson</h3>
+
+<h4 style="font-family:'Outfit',sans-serif;font-size:0.95rem;font-weight:600;color:var(--accent2);margin:1.2rem 0 0.6rem;">Proceso homogéneo</h4>
+<p>Aprovechamos que los tiempos entre eventos son $\text{Exp}(\lambda)$, así que $T_i=-\frac{1}{\lambda}\ln U_i$.</p>
 <ol class="steps">
-  <li><span class="step-num">1</span>Generar $U\sim U(0,1)$</li>
-  <li><span class="step-num">2</span>Si $U < p_0 \Rightarrow X=x_0$ y terminar</li>
-  <li><span class="step-num">3</span>Si $U < p_0+p_1 \Rightarrow X=x_1$ y terminar</li>
-  <li><span class="step-num">4</span>Continuar hasta encontrar el $j$ tal que $F(x_{j-1})\le U < F(x_j)$</li>
+  <li><span class="step-num">1</span>Inicializar $t=0$, $I=0$</li>
+  <li><span class="step-num">2</span>Generar $U\sim U(0,1)$</li>
+  <li><span class="step-num">3</span>$t = t - \frac{1}{\lambda}\log(U)$. Si $t>T$, terminar</li>
+  <li><span class="step-num">4</span>Actualizar: $I=I+1$, $S(I)=t$</li>
+  <li><span class="step-num">5</span>Ir al paso 2</li>
+</ol>
+<p>El valor final de $I$ es el n° de eventos hasta $T$; $S(1),\ldots,S(I)$ son los tiempos de evento.</p>
+
+<h4 style="font-family:'Outfit',sans-serif;font-size:0.95rem;font-weight:600;color:var(--accent2);margin:1.2rem 0 0.6rem;">Proceso no homogéneo (thinning)</h4>
+<ol class="steps">
+  <li><span class="step-num">1</span>$t = s$</li>
+  <li><span class="step-num">2</span>Generar $U_\lambda\sim U(0,1)$</li>
+  <li><span class="step-num">3</span>$t = t - \frac{1}{\lambda}\log(U_\lambda)$ con $\lambda=\max_t \lambda(t)$</li>
+  <li><span class="step-num">4</span>Generar $U_t\sim U(0,1)$</li>
+  <li><span class="step-num">5</span>Si $U_t \le \frac{\lambda(t)}{\lambda} \Rightarrow T_s=t$ y terminar (aceptar evento)</li>
+  <li><span class="step-num">6</span>Ir al paso 2 (rechazar candidato)</li>
 </ol>
 
-<div class="callout important">
-  <span class="callout-icon">⚠️</span>
-  <div><strong>Optimización:</strong> el tiempo promedio de búsqueda es proporcional al número de intervalos recorridos. Para minimizarlo, conviene ordenar los valores $x_j$ en <strong>orden decreciente de $p_j$</strong> — los valores más probables se verifican primero. Esto es especialmente útil cuando las probabilidades son muy desiguales.</div>
+<h3>21.4 Método de Composición (mezcla de distribuciones)</h3>
+<p>Cuando $F_X(x) = \sum_i \alpha_i\, F_i(x)$, se genera $X$ seleccionando primero la componente con probabilidad $\alpha_i$.</p>
+<div class="eq-box highlight">
+  $$p_j = \alpha\, p_j^1 + (1-\alpha)\,p_j^2 \implies X = \begin{cases} X_1 & \text{si } U < \alpha \\ X_2 & \text{si } U > \alpha \end{cases}$$
 </div>
-
-<p><strong>Ejemplo:</strong> $p_1=0.20$, $p_2=0.15$, $p_3=0.25$, $p_4=0.40$. Versión estándar vs. optimizada:</p>
-<div class="eq-box">
-$$\text{Estándar: } U<0.20\to x_1,\quad U<0.35\to x_2,\quad U<0.60\to x_3,\quad \text{resto}\to x_4$$
-$$\text{Optimizada: } U<0.40\to x_4,\quad U<0.65\to x_3,\quad U<0.85\to x_1,\quad \text{resto}\to x_2$$
-</div>
-
-<h3>21.15 Generación de VA Geométrica</h3>
-<p>La Geométrica $X\sim G(p)$ cuenta la cantidad de fracasos hasta el primer éxito: $P[X=i]=pq^{i-1}$ con $q=1-p$. Su función de distribución es $F(j)=1-q^j$.</p>
-
-<p>La condición $F(j-1)\le U < F(j)$ equivale a $q^{j-1}>1-U\ge q^j$, lo que toma logaritmos y despeja $j$ directamente (sin búsqueda iterativa):</p>
-
-<div class="eq-box result">
-  <div class="eq-label">Fórmula cerrada para la Geométrica</div>
-  $$X = \left\lfloor\frac{\ln(U)}{\ln(q)}\right\rfloor + 1 \qquad U\sim U(0,1)$$
-</div>
+<ol class="steps">
+  <li><span class="step-num">1</span>Generar $U\sim U(0,1)$; seleccionar distribución $X_i$</li>
+  <li><span class="step-num">2</span>Generar otro número pseudoaleatorio para obtener el valor de $x$ desde $X_i$</li>
+</ol>
 
 <div class="callout tip">
   <span class="callout-icon">💡</span>
-  <div>Como $1-U\sim U(0,1)$ también, se usa directamente $\ln(U)/\ln(q)$ en vez de $\ln(1-U)/\ln(q)$. Esta fórmula cerrada es la ventaja de la Geométrica frente a otras discretas: no requiere iterar sobre valores de $j$.</div>
-</div>
-
-<h3>21.16 Generación de VA Binomial con algoritmo de Panjer</h3>
-<p>Para $X\sim B(n,p)$ la recursión de Panjer es:</p>
-<div class="eq-box highlight">
-  <div class="eq-label">Recursión de Panjer para la Binomial</div>
-  $$p_{i+1} = \frac{n-i}{i+1}\cdot\frac{p}{1-p}\cdot p_i \qquad\text{con}\quad p_0 = (1-p)^n = q^n$$
-</div>
-
-<ol class="steps">
-  <li><span class="step-num">1</span>Generar $U\sim U(0,1)$</li>
-  <li><span class="step-num">2</span>Inicializar: $c=p/(1-p)$, $\;i=0$, $\;p_r=q^n$, $\;F=p_r$</li>
-  <li><span class="step-num">3</span>Si $U < F \Rightarrow X=i$ y terminar</li>
-  <li><span class="step-num">4</span>Actualizar: $i=i+1$, $\;p_r = c\cdot\dfrac{n-i+1}{i}\cdot p_r$, $\;F=F+p_r$</li>
-  <li><span class="step-num">5</span>Volver al paso 3</li>
-</ol>
-
-<div class="eq-box result">
-  <div class="eq-label">Número promedio de búsquedas</div>
-  $$\text{Búsquedas promedio} = 1 + np \qquad\text{(valor esperado de }X\text{)}$$
+  <div><strong>Ejemplo (3 uniformes):</strong> $X_1$ con 45%, $X_2$ con 30%, $X_3$ con 25%. Se genera $U_1$: si $U_1<0.45\to X_1$; si $0.45\le U_1<0.75\to X_2$; si $U_1\ge 0.75\to X_3$. Luego se genera $U_2$ para obtener $X=\text{ent}(nU_2)+a$.</div>
 </div>
 
 <div class="callout note">
   <span class="callout-icon">📌</span>
-  <div>La conexión con §21.8 y §19 es directa: el mismo principio de Panjer — recursión $p_i = (a+b/i)\,p_{i-1}$ — aplica tanto para generar la VA como para calcular sus probabilidades. Para Poisson $a=0$, $b=\lambda$; para Binomial $a=-p/(1-p)$, $b=(n+1)p/(1-p)$.</div>
+  <div><strong>Ejemplo (Binomial, paso a paso):</strong> si $U<0.7$, el siniestro ocurre y $X=-\frac{1}{0.01}\ln(U_{\text{monto}})$; si $U\ge 0.7$, no ocurre y $X=0$.</div>
+</div>
+
+<h3>21.5 Convolución como método de composición</h3>
+<p>Para la suma $Z=X+Y$ de dos VA discretas independientes:</p>
+<div class="eq-box">
+  $$P(X+Y=z) = \sum_{k} P(X=k)\cdot P(Y=z-k)$$
+</div>
+<p>Por <strong>FGP</strong>: $G_Z(w)=G_X(w)\cdot G_Y(w)$ donde $G_Z(w)=\sum_{k=0}^\infty w^k\,p_k$.</p>
+<p><strong>Ejemplo:</strong> $P(X=k)=1/3$ para $k\in\{1,2,3\}$; $P(Y=1)=0.5$, $P(Y=2)=0.3$, $P(Y=3)=0.2$. Entonces $P(X+Y=2)=P(X=1)P(Y=1)=\frac{1}{3}\cdot 0.5=\frac{1}{6}$.</p>
+
+<h3>21.6 Análisis estadístico — estimación y criterio de parada</h3>
+<p>Se busca estimar $\theta=E[X_i]$. El estimador es la media muestral $\hat\theta = \bar{X}_k = \sum_{i=1}^k x_i/k$, insesgado con $\text{ECM}(\hat\theta) = \sigma^2_k/k$ desconocida. Se estima la varianza con:</p>
+<div class="eq-box">
+  $$S^2 = \frac{\sum_{i=1}^n (x_i-\bar{x})^2}{n-1}$$
+</div>
+
+<div class="eq-box result">
+  <div class="eq-label">Criterio de parada</div>
+  <ol style="padding-left:1.2rem;margin:0.5rem 0">
+    <li>Elegir valor de $d$ (precisión deseada)</li>
+    <li>Generar mínimo 30 datos</li>
+    <li>Generar más datos hasta que $\dfrac{S}{\sqrt{k}} < d$</li>
+    <li>La estimación de $\theta$ es $\bar{x} = \dfrac{\sum x_i}{k}$</li>
+  </ol>
+</div>
+
+<p><strong>Ejemplo:</strong> estimar la hora esperada en que el último cliente sale del sistema con 95% de confianza, error $<15$ seg: cota $1.96\,S/\sqrt{30}<15$.</p>
+
+<p>Para <strong>VA Bernoulli</strong> (estimación de $p$): $X_k\in\{0,1\}$, la estimación de $p$ es $\bar{X}_k$ y la desviación estándar es $\sqrt{\bar{X}_k(1-\bar{X}_k)/k}$.</p>
+
+<div class="eq-box result">
+  <div class="eq-label">Intervalo de confianza</div>
+  $$\bar{X}_k \pm z_{1-\alpha/2}\,\frac{S_k}{\sqrt{k}} \quad\text{($n$ grande)} \qquad \bar{X}_k \pm t_{n-1;\,1-\alpha/2}\,\frac{S_n}{\sqrt{n-1}} \quad\text{($n$ chica)}$$
+</div>
+
+<div class="callout important">
+  <span class="callout-icon">⚠️</span>
+  <div><strong>Fórmula recursiva de la media:</strong> $\bar{X}_{j+1} = \bar{X}_j + \dfrac{x_{j+1}-\bar{X}_j}{j+1}$</div>
+</div>
+
+<h3>21.7 Bondad de Ajuste (Chi-cuadrado)</h3>
+<div class="eq-box">
+  $$H_0: P[Y=y_i]=p_i \qquad H_1: P[Y=y_i]\ne p_i$$
+</div>
+<p>$N_i\sim B(n_i;\,p_i)$, $\;E[N_i]=n\,p_i$, $\;\text{Var}[N_i]=n\,p_i(1-p_i)$. El estadístico:</p>
+<div class="eq-box highlight">
+  <div class="eq-label">Estadístico Chi-cuadrado</div>
+  $$T^e = \sum_{i=1}^k \frac{(N_i - n\,p_i^e)^2}{n\,p_i^e} \;\xrightarrow{d}\; \chi^2_{k-1} \quad\text{bajo }H_0$$
+</div>
+<p>P-valor $=P(\chi^2_{k-1}\ge T^e)$. Si P-valor $<\alpha \Rightarrow$ rechazar $H_0$.</p>
+
+<p><strong>Ejemplo:</strong> $X$ uniforme discreta en $\{1,\ldots,5\}$, $p=1/5$, $n=50$, $N_i=[12,5,19,7,7]$:</p>
+<div class="table-wrap">
+<table>
+  <tr><th>$x_i$</th><th>$P[x_i=x]$</th><th>$N_i$</th><th>$n\,p_i^e$</th><th>$N_i-n\,p_i^e$</th><th>$(N_i-n\,p_i^e)^2$</th><th>$T^e$</th></tr>
+  <tr><td>1</td><td>0.20</td><td>12</td><td>10</td><td>2</td><td>4</td><td>4/10</td></tr>
+  <tr><td>2</td><td>0.20</td><td>5</td><td>10</td><td>−5</td><td>25</td><td>25/10</td></tr>
+  <tr><td>3</td><td>0.20</td><td>19</td><td>10</td><td>9</td><td>81</td><td>81/10</td></tr>
+  <tr><td>4</td><td>0.20</td><td>7</td><td>10</td><td>−3</td><td>9</td><td>9/10</td></tr>
+  <tr><td>5</td><td>0.20</td><td>7</td><td>10</td><td>−3</td><td>9</td><td>9/10</td></tr>
+  <tr><td><strong>Σ</strong></td><td>1</td><td>50</td><td>50</td><td>0</td><td>—</td><td><strong>128/10</strong></td></tr>
+</table>
+</div>
+<p>P-valor $=P(\chi^2_4>12.8)=0.0122<0.05 \Rightarrow$ <strong>rechazar $H_0$</strong>.</p>
+
+<div class="callout tip">
+  <span class="callout-icon">💡</span>
+  <div><strong>P-valor por simulación:</strong> (1) generar $n$ VA ind. $y_i^{(l)}$ con la misma $F$ de prob. $p_i$; (2) calcular $T^{(l)}$; (3) repetir $r$ veces — el P-valor es la proporción de $T^{(l)}$ que supera $T^e$ observado.</div>
+</div>
+
+<h3>21.8 Estimación numérica de parámetros — ejercicio desarrollado</h3>
+<p>Se pide explicar de forma detallada un método para generar la VA $T_S$ mediante simulación y el uso de números pseudoaleatorios, y proponer valores para realizar una estimación numérica.</p>
+
+<p>Sabemos que $T_S = \sum_{i=1}^S T_{i-1,i}$. Los tiempos entre eventos se distribuyen $T_{i-1,i}\sim\text{Exp}(\lambda+u)$ (por ejemplo, para nacimiento y muerte). Utilizamos el <strong>método de transformada inversa</strong>: simulamos cada exponencial y luego sumamos para obtener $T_S$.</p>
+
+<div class="eq-box highlight">
+  <div class="eq-label">Estimación numérica de $T_S$</div>
+  $$T_S = \sum_{i=1}^S c_i = \sum_{i=1}^S \frac{-\ln(1-U_i)}{\eta(\lambda+u)} = \frac{\ln\!\left(\prod_{i=1}^S (1-U_i)\right)}{-\eta(\lambda+u)}$$
+</div>
+
+<p>donde $\eta(\lambda+u)$ es la tasa total y $S$ es el número de eventos simulados hasta un tiempo $T$.</p>
+
+<p><strong>Estimación numérica:</strong> con números $U = [0.20;\, 0.11;\, 0.555;\, 0.32;\, 0.22;\, 0.10;\, 0.15;\, 0.90]$:</p>
+
+<div class="eq-box">
+  $$T_S = \frac{\ln\!\left[(1-0.20)(1-0.11)(1-0.555)(1-0.32)(1-0.22)\cdots\right]}{-\eta(\lambda+u)}$$
+  $$= \frac{\ln[(0.80)(0.89)(0.445)(0.68)(0.78)\cdots]}{-\eta(\lambda+u)}$$
+</div>
+
+<p>Se debe realizar una prueba con $r$ veces y promediar el resultado.</p>
+
+<div class="callout note">
+  <span class="callout-icon">📌</span>
+  <div>El producto $\prod(1-U_i)$ es la clave: se multiplican los factores de supervivencia. Luego se toma logaritmo y se divide por la tasa total negativa. Esto es equivalente a $-\frac{1}{\eta(\lambda+u)}\ln\!\left(\prod U_i\right)$ cuando se usa $U_i$ directamente (ya que $1-U\sim U(0,1)$ también). Se debe realizar la prueba varias veces y promediar los resultados.</div>
+</div>
+
+<h3>21.9 Simulación con límite de pérdida y gastos adicionales</h3>
+<p>En contextos de seguros, la empresa no paga el siniestro completo sino hasta un límite $L$. A esto se le suma que solo se generan gastos adicionales cuando efectivamente hay siniestro.</p>
+
+<h4 style="font-family:'Outfit',sans-serif;font-size:0.95rem;font-weight:600;color:var(--accent2);margin:1.2rem 0 0.6rem;">Límite de pérdida (franquicia por arriba)</h4>
+<p>La empresa paga $\min(X_i, L)$. Si el siniestro supera el límite, el asegurado cubre el exceso:</p>
+<div class="eq-box highlight">
+  <div class="eq-label">Pago con límite de pérdida</div>
+  $$\text{Pago}_i = \begin{cases} 0 & \text{si no hay siniestro} \\ \min(X_i,\; L) & \text{si hay siniestro} \end{cases}$$
+</div>
+<ol class="steps">
+  <li><span class="step-num">1</span>Generar $U_{\text{sin}}\sim U(0,1)$: si $U_{\text{sin}} < p \Rightarrow$ hay siniestro</li>
+  <li><span class="step-num">2</span>Si hay siniestro, generar $U_{\text{monto}}$ y calcular $X_i = F^{-1}(U_{\text{monto}})$</li>
+  <li><span class="step-num">3</span>Aplicar el límite: $\text{Pago}_i = \min(X_i, L)$</li>
+  <li><span class="step-num">4</span>El monto promedio de la empresa es $\bar{\text{Pago}} = \frac{1}{n}\sum_i \text{Pago}_i$, que es <strong>menor</strong> que sin límite</li>
+</ol>
+
+<h4 style="font-family:'Outfit',sans-serif;font-size:0.95rem;font-weight:600;color:var(--accent2);margin:1.2rem 0 0.6rem;">Gastos adicionales condicionados al siniestro</h4>
+<p>Solo se simulan gastos cuando hay siniestro. Se usa un vector $U_{\text{gastos}}$ independiente, pero <strong>solo para los registros con siniestro</strong>:</p>
+<div class="eq-box">
+  $$G_i \sim U(0, G_{\max}) \implies G_i = U_{\text{gastos},i} \cdot G_{\max} \qquad \text{solo si hubo siniestro}$$
+  $$\text{Costo total}_i = \min(X_i, L) + G_i \qquad \text{(si hay siniestro)}$$
+</div>
+
+<div class="callout important">
+  <span class="callout-icon">⚠️</span>
+  <div><strong>Trampa frecuente:</strong> no simular gastos para <em>todos</em> los registros — solo para los casos donde $U_{\text{sin}} < p$. Si se usan los $U_{\text{gastos}}$ también cuando no hay siniestro, los gastos quedan sobreestimados y el costo medio sale mayor de lo correcto.</div>
+</div>
+
+<h4 style="font-family:'Outfit',sans-serif;font-size:0.95rem;font-weight:600;color:var(--accent2);margin:1.2rem 0 0.6rem;">Probabilidad condicional por simulación</h4>
+<p>Con $n$ realizaciones de una mezcla de distribuciones $X$ (plantas 1, 2, 3 con pesos $\alpha_1, \alpha_2, \alpha_3$):</p>
+<div class="eq-box result">
+  $$\hat{P}(X > c) = \frac{\#\{i: X_i > c\}}{n} \qquad \hat{P}(\text{planta }k \mid X < c) = \frac{\#\{i: \text{planta }k \text{ y } X_i < c\}}{\#\{i: X_i < c\}}$$
+</div>
+<p>IC al 95% para una proporción estimada por simulación:</p>
+<div class="eq-box">
+  $$\hat{p} \pm 1.96\sqrt{\frac{\hat{p}(1-\hat{p})}{n}}$$
 </div>
 </section>
+
+<!-- ══════════════════════════════════════ -->
+<section id="s22">
+<div class="section-header">
+  <span class="section-num">22</span>
+  <h2>Modelos Lineales Generalizados (GLM)</h2>
+</div>
+
+<h3>22.1 Motivación y estructura general</h3>
+<p>Los <strong>GLM</strong> modelan relaciones entre variables para datos <em>no normales</em>. Generalizan la regresión lineal clásica permitiendo que la variable respuesta pertenezca a la <strong>familia exponencial</strong> y que la relación entre $\mu=E[Y]$ y el predictor lineal sea no lineal.</p>
+
+<div class="eq-box highlight">
+  <div class="eq-label">Densidad de la familia exponencial</div>
+  $$f(y;\,\theta,\phi) = c(y;\phi)\,\exp\!\left(\frac{y\theta - a(\theta)}{\phi}\right)$$
+  $$E[Y] = \dot a(\theta) \qquad \text{Var}[Y] = \phi\,\ddot a(\theta)$$
+</div>
+<p>donde $\theta$ es el <em>parámetro canónico</em>, $\phi$ el <em>parámetro de dispersión</em>, $a(\theta)$ la función de acumulante y $c(y;\phi)$ no depende de $\theta$.</p>
+
+<h3>22.2 Tabla de la familia exponencial</h3>
+<div class="table-wrap">
+<table>
+  <tr>
+    <th>Distribución</th><th>$\theta(w)$</th><th>$a(\theta)$</th><th>$\phi$</th><th>$E[Y]$</th><th>$V(\mu)=\text{Var}[Y]/\phi$</th>
+  </tr>
+  <tr><td>$B(n,\pi)$</td><td>$\ln\frac{\pi}{1-\pi}$</td><td>$n\ln(1+e^\theta)$</td><td>1</td><td>$n\pi$</td><td>$n\pi(1-\pi)$</td></tr>
+  <tr><td>$P(\mu)$</td><td>$\ln\mu$</td><td>$e^\theta$</td><td>1</td><td>$\mu$</td><td>$\mu$</td></tr>
+  <tr><td>$N(\mu,\sigma^2)$</td><td>$\mu$</td><td>$\frac{1}{2}\theta^2$</td><td>$\sigma^2$</td><td>$\mu$</td><td>1</td></tr>
+  <tr><td>$G(\mu,\nu)$</td><td>$-\frac{1}{\mu}$</td><td>$-\ln(-\theta)$</td><td>$\frac{1}{\nu}$</td><td>$\mu$</td><td>$\mu^2$</td></tr>
+  <tr><td>$IG(\mu,\sigma^2)$</td><td>$-\frac{1}{2\mu^2}$</td><td>$-\sqrt{-2\theta}$</td><td>$\sigma^2$</td><td>$\mu$</td><td>$\mu^3$</td></tr>
+  <tr><td>$NB(\mu,\kappa)$</td><td>$\ln\frac{\kappa\mu}{1+\kappa\mu}$</td><td>$-\frac{1}{\kappa}\ln(1-\kappa e^\theta)$</td><td>1</td><td>$\mu$</td><td>$\mu(1+\kappa\mu)$</td></tr>
+</table>
+</div>
+
+<h3>22.3 Función de enlace y predictor lineal</h3>
+<p>La <strong>función de enlace</strong> $g(\mu)$ conecta la media con el predictor lineal:</p>
+<div class="eq-box result">
+  $$g(\mu) = \eta = X^T\beta = \beta_0 + \beta_1 x_1 + \cdots \qquad\text{(se asumen observaciones independientes)}$$
+</div>
+<p>La función de enlace <em>canónica</em> satisface $g(\mu)=\theta$.</p>
+
+<div class="table-wrap">
+<table>
+  <tr><th>Función de enlace</th><th>$g(\mu)$</th><th>Distribución canónica</th></tr>
+  <tr><td>Identidad</td><td>$\mu$</td><td>Normal → reg. lineal</td></tr>
+  <tr><td>Log</td><td>$\ln\mu$</td><td>Poisson → reg. logarítmica</td></tr>
+  <tr><td>Potencia</td><td>$\mu^p$</td><td>Gamma ($p=-1$), IG ($p=-2$)</td></tr>
+  <tr><td>Raíz cuadrada</td><td>$\sqrt{\mu}$</td><td>—</td></tr>
+  <tr><td>Logit</td><td>$\ln\frac{\mu}{1-\mu}$</td><td>Binomial → reg. logística</td></tr>
+</table>
+</div>
+
+<h3>22.4 Regresión Logística — Binomial (proporciones)</h3>
+<p>Para $Y\sim B(n,\pi)$, la función de enlace canónica es el <strong>logit</strong>:</p>
+<div class="eq-box highlight">
+  <div class="eq-label">Enlace canónico — Binomial</div>
+  $$\ln\!\left(\frac{\pi}{1-\pi}\right) = \beta_0 + \beta_1 x_1 + \cdots$$
+</div>
+<p>Derivación desde la familia exponencial: $\ln f(y)=y\ln\frac{\pi}{1-\pi}+n\ln(1-\pi)+\ln\binom{n}{y}$. Identificamos $\theta=\ln\frac{\pi}{1-\pi}$, de donde $e^\theta=\frac{\pi}{1-\pi}$ y:</p>
+<div class="eq-box result">
+  $$\pi = \frac{e^\theta}{1+e^\theta} \qquad a(\theta)=n\ln(1+e^\theta) \qquad \dot a(\theta)=n\pi=E[Y] \qquad \ddot a(\theta)=n\pi(1-\pi)=\text{Var}[Y]$$
+</div>
+<div class="callout tip">
+  <span class="callout-icon">💡</span>
+  <div><strong>Interpretación de $\beta_1$:</strong> un aumento de 1 unidad en $x$ multiplica el odds $\pi/(1-\pi)$ por $e^{\beta_1}$ (odds ratio).</div>
+</div>
+
+<h3>22.5 Regresión Logarítmica — Poisson (conteos)</h3>
+<div class="eq-box highlight">
+  <div class="eq-label">Enlace canónico — Poisson</div>
+  $$\ln\mu = \beta_0 + \beta_1 x_1 + \cdots \implies \mu = e^{\beta_0+\beta_1 x_1+\cdots}$$
+</div>
+<p>De $\ln f(y;\mu)=-\mu+y\ln\mu-\ln y!$ se obtiene $\theta=\ln\mu$, $a(\theta)=e^\theta$, $\phi=1$:</p>
+<div class="eq-box result">
+  $$E[Y]=\dot a(\theta)=e^\theta=\mu \qquad \text{Var}[Y]=\ddot a(\theta)=e^\theta=\mu$$
+</div>
+
+<h3>22.6 Distribución Normal en GLM</h3>
+<p>Enlace identidad — coincide con regresión lineal clásica. De $\ln f(y)=-\frac{(y-\mu)^2}{2\sigma^2}-\frac{1}{2}\ln(2\pi)-\ln\sigma$ se separa en 3 adiciones:</p>
+<div class="eq-box">
+  $$\ln f(y) = -\frac{y^2}{2\sigma^2} + \frac{y\mu}{\sigma^2} - \frac{\mu^2/2}{\sigma^2}$$
+</div>
+<p>Identificamos $\theta=\mu$, $\phi=\sigma^2$, $a(\theta)=\theta^2/2$:</p>
+<div class="eq-box result">
+  $$E[Y]=\dot a(\theta)=\theta=\mu \qquad \text{Var}[Y]=\phi\,\ddot a(\theta)=\sigma^2$$
+</div>
+
+<h3>22.7 Distribución Gamma</h3>
+<p>Para $Y\sim\Gamma(\nu,\mu/\nu)$, el término lineal en $y$ identifica $\theta=-\frac{1}{\mu}$, $\phi=\frac{1}{\nu}$, $a(\theta)=-\ln(-\theta)$:</p>
+<div class="eq-box result">
+  $$E[Y]=-\frac{1}{\theta}=\mu \qquad \text{Var}[Y]=\phi\,\ddot a(\theta)=\frac{1}{\nu}\cdot\frac{1}{\theta^2}=\frac{\mu^2}{\nu}$$
+</div>
+
+<h3>22.8 Distribución Geométrica</h3>
+<p>$f(y)=p(1-p)^{y-1}$, $y\ge 1$. Con $\theta=\ln(1-p)$, $a(\theta)=\theta-\ln(1-e^\theta)$, $\phi=1$:</p>
+<div class="eq-box result">
+  $$E[Y]=\frac{1}{p} \qquad \text{Var}[Y]=\frac{q}{p^2}$$
+</div>
+
+<h3>22.9 Binomial Negativa — derivación algebraica</h3>
+<p>$Y\sim NB(\pi,\kappa)$: $f(y)=\pi^y(1-\pi)^\kappa\binom{y+\kappa-1}{y}$, $y\ge 0$. Aplicando logaritmo:</p>
+<div class="eq-box">
+  $$\ln f(y) = y\ln\pi + \kappa\ln(1-\pi) + \ln\binom{y+\kappa-1}{y}$$
+</div>
+<p>Ignoramos lo que no depende de $\pi$ y reescribimos en forma canónica. Identificamos el término lineal en $y$:</p>
+<div class="eq-box">
+  $$\ln f(y) = y\underbrace{\ln\pi}_{\theta} + \underbrace{\kappa\ln(1-\pi)}_{-a(\theta)/\phi} + \ln\!\binom{y+\kappa-1}{y}$$
+</div>
+<p>De $\theta=\ln\pi$ se tiene $e^\theta=\pi$, $1-\pi=1-e^\theta$, y entonces:</p>
+<div class="eq-box result">
+  <div class="eq-label">Binomial Negativa — parámetros canónicos</div>
+  $$\theta = \ln\pi \qquad a(\theta) = -\kappa\ln(1-e^\theta) \qquad \phi = 1$$
+</div>
+<p>Calculando $\dot a(\theta)$ y $\ddot a(\theta)$:</p>
+<div class="eq-box">
+  $$\dot a(\theta) = \frac{\kappa\,e^\theta}{1-e^\theta} = \frac{\kappa\pi}{1-\pi} = E[Y] \qquad \ddot a(\theta) = \frac{\kappa\,e^\theta}{(1-e^\theta)^2} = \frac{\kappa\pi}{(1-\pi)^2}$$
+</div>
+<div class="eq-box result">
+  $$E[Y] = \frac{\kappa\pi}{1-\pi} \qquad \text{Var}[Y] = \frac{\kappa\pi}{(1-\pi)^2} = E[Y]\cdot\frac{1}{1-\pi}$$
+</div>
+
+<div class="callout note">
+  <span class="callout-icon">📌</span>
+  <div>En la parametrización alternativa $NB(\mu,\kappa)$ con $\mu=E[Y]$: $\theta=\ln\frac{\kappa\mu}{1+\kappa\mu}$, $a(\theta)=-\frac{1}{\kappa}\ln(1-\kappa e^\theta)$, $V(\mu)=\mu(1+\kappa\mu)$ — esta es la forma de la tabla de la familia exponencial.</div>
+</div>
+
+<h3>22.10 Devianza</h3>
+<p>La <strong>devianza</strong> $\Delta$ mide la bondad de ajuste comparando el modelo ajustado con el saturado: $\Delta=2(\ell_{\text{sat}}-\hat\ell)$, donde $\hat\ell$ es la log-verosimilitud del modelo ajustado y $\ell_{\text{sat}}$ la del modelo saturado (un parámetro por observación).</p>
+<div class="table-wrap">
+<table>
+  <tr><th>Distribución</th><th>Devianza $\Delta$</th></tr>
+  <tr><td>Normal</td><td>$\frac{1}{\sigma^2}\sum(y_i-\hat\mu_i)^2$</td></tr>
+  <tr><td>Poisson</td><td>$2\sum\!\left[y_i\ln\frac{y_i}{\hat\mu_i}-(y_i-\hat\mu_i)\right]$</td></tr>
+  <tr><td>Binomial</td><td>$2\sum\!\left[y_i\ln\frac{y_i}{\hat\mu_i}+(n_i-y_i)\ln\frac{n_i-y_i}{n_i-\hat\mu_i}\right]$</td></tr>
+  <tr><td>Gamma</td><td>$2\nu\sum\!\left[-\ln\frac{y_i}{\hat\mu_i}+\frac{y_i-\hat\mu_i}{\hat\mu_i}\right]$</td></tr>
+  <tr><td>Gaussiana Inversa</td><td>$\frac{1}{\sigma^2}\sum\frac{(y_i-\hat\mu_i)^2}{\hat\mu_i^2\,y_i}$</td></tr>
+  <tr><td>Binomial Negativa</td><td>$2\sum\!\left[y_i\ln\frac{y_i}{\hat\mu_i}-(y_i+\frac{1}{\kappa})\ln\frac{y_i+1/\kappa}{\hat\mu_i+1/\kappa}\right]$</td></tr>
+</table>
+</div>
+
+<h3>22.11 Interpretación de los coeficientes — "cómo afecta un aumento en una unidad de $x$"</h3>
+<p>En regresión logística, el predictor lineal es $\ln\!\left(\frac{\pi}{1-\pi}\right) = \beta_0+\beta_1 x$. Si $x$ aumenta en 1 unidad:</p>
+<div class="eq-box highlight">
+  <div class="eq-label">Efecto de aumentar $x$ en 1 unidad — Regresión Logística</div>
+  $$\ln\!\left(\frac{\pi}{1-\pi}\right) = \beta_0 + \beta_1 x \implies \frac{\pi'/(1-\pi')}{\pi/(1-\pi)} = \frac{e^{\beta_0+\beta_1(x+1)}}{e^{\beta_0+\beta_1 x}} = e^{\beta_1}$$
+</div>
+<p>Es decir: aumentar $x$ en 1 unidad <strong>multiplica el odds por $e^{\beta_1}$</strong>. Desarrollando paso a paso:</p>
+<div class="eq-box">
+  $$\frac{\pi}{1-\pi} = e^{\beta_0 + \beta_1 x} \qquad \frac{\pi'}{1-\pi'} = e^{\beta_0 + \beta_1(x+1)} = e^{\beta_0+\beta_1 x}\cdot e^{\beta_1}$$
+  $$\implies \text{odds}' = \text{odds}\cdot e^{\beta_1} \quad (e^{\beta_1}\text{ unidades de odds})$$
+</div>
+<div class="callout tip">
+  <span class="callout-icon">💡</span>
+  <div>
+    <strong>Resumen de interpretaciones por modelo:</strong><br>
+    • <em>Logística (Binomial):</em> $e^{\beta_1}$ = odds ratio — cuánto se multiplica el odds $\pi/(1-\pi)$ por unidad de $x$.<br>
+    • <em>Logarítmica (Poisson):</em> $e^{\beta_1}$ = factor multiplicativo de $\mu$ — la media se multiplica por $e^{\beta_1}$ por unidad de $x$.<br>
+    • <em>Lineal (Normal):</em> $\beta_1$ = aumento aditivo en $\mu$ por unidad de $x$.
+  </div>
+</div>
+
+<h3>22.12 Pasos para ajustar un GLM</h3>
+<ol class="steps">
+  <li><span class="step-num">1</span>Plantear: $g(\mu)=\beta_0+\beta_1 x_1+\cdots$ según la distribución de $Y$</li>
+  <li><span class="step-num">2</span>Despejar $\mu$</li>
+  <li><span class="step-num">3</span>Si se piden probabilidades: usar $\mu=\lambda$ y aplicar la función de prob. correspondiente</li>
+</ol>
+<div class="callout note">
+  <span class="callout-icon">📌</span>
+  <div>
+    <strong>Funciones de enlace canónicas:</strong>
+    reg. logística $\to \ln\frac{\pi}{1-\pi}$ (Binomial, proporciones) —
+    reg. logarítmica $\to \ln\mu$ (Poisson, conteos) —
+    reg. inversa $\to \frac{1}{\mu}$ (Gamma) —
+    identidad $\to \mu$ (Normal, reg. lineal)
+  </div>
+</div>
+
+<h3>22.13 Test de Wald — significatividad de los $\beta_i$</h3>
+<div class="eq-box highlight">
+  <div class="eq-label">Test de Wald</div>
+  $$H_0: \beta_i=0 \quad\text{(no significativo)} \qquad H_1: \beta_i\ne 0 \quad\text{(significativo)}$$
+  $$z = \frac{\hat\beta_i}{\text{SE}(\hat\beta_i)} \sim N(0,1) \;\text{bajo }H_0 \qquad \text{P-valor}=P(|Z|>|z|)=2P(Z>|z|)$$
+  $$\text{Si P-valor}<\alpha \Rightarrow \text{rechazar }H_0 \Rightarrow \beta_i\text{ es significativo}$$
+</div>
+
+<h3>22.14 AIC — comparación de modelos</h3>
+<p>El <strong>AIC</strong> (Criterio de Información de Akaike) penaliza la complejidad del modelo:</p>
+<div class="eq-box result">
+  <div class="eq-label">AIC</div>
+  $$\text{AIC} = -2\hat\ell + 2k \qquad \text{(menor AIC = mejor modelo)}$$
+</div>
+<p>donde $\hat\ell$ es la log-verosimilitud maximizada y $k$ el número de parámetros. Se usa para elegir entre modelos con diferente función de enlace o con/sin covariables.</p>
+
+<div class="callout tip">
+  <span class="callout-icon">💡</span>
+  <div><strong>Ejemplo (parcial 2023-2C R — goles Copa LPF):</strong> modelo con link <em>log</em> dio AIC = 147.14; modelo con link <em>identity</em> dio AIC = 147.66. Como $147.14 < 147.66$, se elige el link logarítmico. La diferencia es pequeña pero el criterio es claro: siempre el menor.</div>
+</div>
+
+<h3>22.15 Overdispersión</h3>
+<p>Ocurre cuando la <strong>varianza observada excede la varianza teórica</strong> del modelo. En Poisson, la teoría dice $\text{Var}[Y]=\mu$; si en los datos $\text{Var}[Y] > \mu$, hay overdispersión.</p>
+
+<div class="eq-box highlight">
+  <div class="eq-label">Parámetro de dispersión empírico</div>
+  $$\hat\phi = \frac{\chi^2_{\text{Pearson}}}{n - p} = \frac{\sum_i (y_i - \hat\mu_i)^2 / V(\hat\mu_i)}{n-p}$$
+  $$\hat\phi > 1 \implies \text{overdispersión} \qquad \hat\phi < 1 \implies \text{underdispersión}$$
+</div>
+
+<p><strong>Consecuencias:</strong> si hay overdispersión y se usa Poisson igualmente, los errores estándar de los $\hat\beta_i$ quedan <strong>subestimados</strong>. Los p-valores son más chicos de lo real — se declaran significativos coeficientes que no lo son.</p>
+
+<div class="table-wrap">
+<table>
+  <tr><th>Situación</th><th>Solución recomendada</th><th>Cambio en el modelo</th></tr>
+  <tr><td>Overdispersión moderada ($\hat\phi$ cerca de 1)</td><td>Quasi-Poisson</td><td>SE se multiplican por $\sqrt{\hat\phi}$; AIC no se puede usar</td></tr>
+  <tr><td>Overdispersión fuerte</td><td>Binomial Negativa</td><td>Agrega parámetro $\kappa$ que modela la variabilidad extra: $\text{Var}[Y]=\mu(1+\kappa\mu)$</td></tr>
+  <tr><td>Variable respuesta dicotómica con sobredispersión</td><td>Quasi-Binomial o Beta-Binomial</td><td>Idem, escalar los SE</td></tr>
+</table>
+</div>
+
+<div class="callout important">
+  <span class="callout-icon">⚠️</span>
+  <div><strong>Trampa de parcial:</strong> preguntan "¿qué consecuencia tiene ignorar la overdispersión?" La respuesta clave es que los SE quedan subestimados → p-valores demasiado pequeños → se rechaza $H_0$ más de lo que corresponde (falsos positivos). <em>No</em> afecta las estimaciones puntuales $\hat\beta_i$, solo su precisión.</div>
+</div>
+</section>
+
+
+
 
 <div class="divider">TABLAS RESUMEN</div>
 
